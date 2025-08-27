@@ -36,6 +36,6 @@ const handleLogout = () => {
     <GameHeader :username="username" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
 
     <div v-if="!isLoggedIn">
-        <LoginForm @login-success="onLoginSuccess" />
+      <LoginForm @login-success="onLoginSuccess" />
     </div>
 </template>
