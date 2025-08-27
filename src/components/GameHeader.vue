@@ -53,11 +53,11 @@ h1 {
   border: 1px solid transparent;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #9fa3a4; /* Wordle grey */
+  background-color: #9fa3a4;
   transition: all 0.3s ease-in-out;
 }
 .logout-button:hover {
-  background-color: #6aaa64; /* Wordle green */
+  background-color: #6aaa64;
   transform: scale(1.025);
 }
 </style>
