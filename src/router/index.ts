@@ -2,9 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
 import GameView from '../pages/GameView.vue';
+import GameHub from '../pages/GameHub.vue';
 
 const routes : RouteRecordRaw[] = [
-    { path: '/', redirect: '/game' },
+    { path: '/', redirect: '/hub' },
+    { path: '/hub', component: GameHub },
     { path: '/game', component: GameView },
 ];
 

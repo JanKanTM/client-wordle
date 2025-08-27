@@ -16,8 +16,8 @@ const message = ref('')
 const letterStates = ref<Record<string, 'correct' | 'present' | 'absent'>>({})
 
 const keyboardRows = [
-  ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Ü'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ö', 'Ä'],
+  ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
+  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
   ['Enter', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'Backspace']
 ]
 

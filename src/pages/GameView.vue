@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import LoginForm from '../components/LoginForm.vue'
+import { useRouter } from 'vue-router'
 import GameHeader from '../components/GameHeader.vue'
 import WordleGame from '../components/WordleGame.vue'
 
+const router = useRouter()
 const isLoggedIn = ref(false)
 const username = ref('')
 
@@ -14,36 +15,24 @@ onMounted(() => {
     if (userData.isLoggedIn) {
       isLoggedIn.value = true
       username.value = userData.username
+    } else {
+      router.push('/hub')
     }
   } else {
-      isLoggedIn.value = false
+    router.push('/hub')
   }
 })
 
-const onLoginSuccess = () => {
-  isLoggedIn.value = true
-  const user = localStorage.getItem('user')
-  if (user) {
-    const userData = JSON.parse(user)
-    username.value = userData.username
-  }
-}
-
 const handleLogout = () => {
-  localStorage.removeItem('user');
-  isLoggedIn.value = false;
+  localStorage.removeItem('user')
+  isLoggedIn.value = false
+  router.push('/hub')
 }
-
 </script>
 
 <template>
-
-  <div v-if="!isLoggedIn">
-    <LoginForm @login-success="onLoginSuccess" />
-  </div>
-
-  <div v-else class="game-view-container">
-    <GameHeader :username="username" @logout="handleLogout" />
+  <div class="game-view-container">
+    <GameHeader :username="username" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
     <main>
       <WordleGame />
     </main>
