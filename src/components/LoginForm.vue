@@ -62,7 +62,7 @@ const userData = ref<User | null>(null);
 // soll ausgetauscht werden mit handleSubmit
 async function handleLogin() {
   try {
-    if (isRegistering) {
+    if (isRegistering.value) {
       // password check
       if (!username.value || !password.value) {
         alert("Benutzername und Passwort sind erforderlich.");
@@ -77,6 +77,8 @@ async function handleLogin() {
 
       userData.value = await registerUser(credentials);
       console.log("Registrierung erfolgreich:", userData.value);
+
+      isRegistering.value = false;
     } else {
       // Login
       const credentials: LoginRequest = {
