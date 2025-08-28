@@ -36,7 +36,6 @@ const board = computed(() => {
         if (isCurrentRow) {
           state = 'active'
         } else {
-          // Logik zur Bestimmung des Zustands (correct, present, absent)
           const targetLetter = targetWord.value[j]
           if (letter === targetLetter) {
             state = 'correct'

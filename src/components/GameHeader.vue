@@ -11,11 +11,23 @@ defineEmits(['logout']);
 
 <template>
   <header class="game-header">
+
     <h1>Wortel</h1>
-    <div v-if="isLoggedIn" class="user-actions">
-      <span>Willkommen, {{ username }}</span>
-      <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
+
+    <div v-if="isLoggedIn" class="container">
+
+      <div class="welcome-message">
+        <span>Willkommen, {{ username }}</span>
+      </div>
+
+      <div class="user-actions">
+        <span class="action-link">Einstellungen</span>
+        <span class="action-link">Scoreboard</span>
+        <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
+      </div>
+
     </div>
+    
   </header>
 </template>
 
@@ -38,6 +50,10 @@ h1 {
   background-color: #ffffff;
   border-bottom: 1px solid #ddd;
 }
+.welcome-message {
+  color: #3a3a3c;
+  font-weight: 600;
+}
 .user-actions {
   display: flex;
   align-items: center;
@@ -59,5 +75,14 @@ h1 {
 .logout-button:hover {
   background-color: #6aaa64;
   transform: scale(1.025);
+}
+.action-link {
+  cursor: pointer;
+  font-weight: 600;
+  color: #3a3a3c;
+  transition: color 0.2s ease-in-out;
+}
+.action-link:hover {
+  color: #6aaa64;
 }
 </style>
