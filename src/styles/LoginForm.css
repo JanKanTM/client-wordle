@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Modak&display=swap');
 
 .login-form-container {
   display: flex;
@@ -16,11 +16,9 @@
 
 .login-form-title {
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 25px;
-  letter-spacing: 0.1em;
-  font-family: 'Luckiest Guy', cursive;
+  font-size: 4rem;
+  font-weight: 400;
+  font-family: "Modak", system-ui;
   color: #3a3a3c;
 }
 

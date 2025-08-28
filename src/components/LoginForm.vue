@@ -62,14 +62,25 @@ const userData = ref<User | null>(null);
 // soll ausgetauscht werden mit handleSubmit
 async function handleLogin() {
   try {
+    // password check
+    if (!username.value || !password.value) {
+      alert("Benutzername und Passwort sind erforderlich.");
+      return;
+    }
+
     if (isRegistering.value) {
-      // password check
-      if (!username.value || !password.value) {
-        alert("Benutzername und Passwort sind erforderlich.");
+      // Register
+
+      // basic logic
+      if (password.value !== confirmPassword.value) {
+        alert("Die Passwörter stimmen nicht überein!");
+        return;
+      }
+      if (password.value.length < 4) {
+        alert("Das Passwort muss mindestens 4 Zeichen lang sein.");
         return;
       }
 
-      // Register
       const credentials: RegisterRequest = {
         username: username.value,
         password: password.value,
@@ -88,7 +99,7 @@ async function handleLogin() {
 
       userData.value = await loginUser(credentials);
       console.log("Login erfolgreich:", userData.value);
-    }
+    } 
   } catch (err) {
     console.error("Fehler beim Login:", err);
   }

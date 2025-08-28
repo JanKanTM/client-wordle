@@ -79,10 +79,11 @@ function routeGame() {
 
 .title h1 {
   font-family: "Modak", system-ui;
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 400;
   font-style: normal;
   margin-bottom: 10px;
+  color: #3a3a3c;
 }
 
 .title p {
