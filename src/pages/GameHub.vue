@@ -32,32 +32,35 @@ const handleLogout = () => {
   localStorage.removeItem('user');
   isLoggedIn.value = false;
 }
-
-const startGame = () => {
-  router.push('/game');
-}
-
-const showHowToPlay = () => {
-  alert('So wird gespielt:\n\n1. Errate das Wort in 6 Versuchen.\n2. Jeder Versuch muss ein gültiges Wort mit 5 Buchstaben sein.\n3. Die Farbe der Kacheln ändert sich, um anzuzeigen, wie nah du an der Lösung bist.\n\nGrün: Der Buchstabe ist im Wort und an der richtigen Stelle.\nGelb: Der Buchstabe ist im Wort, aber an der falschen Stelle.\nGrau: Der Buchstabe ist nicht im Wort.');
-}
 </script>
 
 <template>
-    <GameHeader :username="username" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
+  <GameHeader :username="username" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
 
-    <div v-if="!isLoggedIn">
-      <LoginForm @login-success="onLoginSuccess" />
+  <div v-if="!isLoggedIn">
+    <LoginForm @login-success="onLoginSuccess" />
+  </div>
+
+  <div v-else class="hub-container">
+
+    <div class="title">
+      <h1>Wortel</h1>
+
+      <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
     </div>
-    <div v-else class="hub-container">
-        <p>Bist du bereit für eine neue Runde?</p>
-        <div class="hub-actions">
-            <button @click="startGame" class="hub-button play-button">Spielen</button>
-            <button @click="showHowToPlay" class="hub-button how-to-play-button">How to Play</button>
-        </div>
+
+    <div class="hub-actions">
+      <button class="hub-button dark-gray-button">Anleitung</button>
+      <button class="hub-button dark-gray-button">Highscore</button>
+      <button class="hub-button play-button">Spielen</button>
     </div>
+
+  </div>
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Modak&display=swap');
+
 .hub-container {
   display: flex;
   flex-direction: column;
@@ -68,12 +71,15 @@ const showHowToPlay = () => {
   text-align: center;
 }
 
-.hub-container h2 {
-  font-size: 2.5rem;
+.title h1 {
+  font-family: "Modak", system-ui;
+  font-size: 3.5rem;
+  font-weight: 400;
+  font-style: normal;
   margin-bottom: 10px;
 }
 
-.hub-container p {
+.title p {
   font-size: 1.2rem;
   color: #787c7e;
   margin-bottom: 30px;
@@ -81,30 +87,33 @@ const showHowToPlay = () => {
 
 .hub-actions {
   display: flex;
+  justify-content: center;
   gap: 20px;
 }
 
 .hub-button {
-  padding: 15px 30px;
+  padding: 12px 24px;
   font-size: 1.1rem;
   font-weight: bold;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 .hub-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.025);
 }
 
 .play-button {
+  background-color: #5e8d64;
+}
+.play-button:hover {
   background-color: #6aaa64;
 }
 
-.how-to-play-button {
-  background-color: #9fa3a4; 
+.dark-gray-button {
+  background-color: #3a3a3c;
 }
 </style>

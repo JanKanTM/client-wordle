@@ -20,7 +20,7 @@ function routeSettings() {
 <template>
   <header class="game-header">
     <div class="header-content">
-      <!--<h1>Wortel</h1>-->
+
       <img src="../assets/logo/Logo.png" alt="Wortel" class="logo-image">
 
       <template v-if="isLoggedIn">
