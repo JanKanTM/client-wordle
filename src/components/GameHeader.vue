@@ -19,44 +19,46 @@ function routeSettings() {
 
 <template>
   <header class="game-header">
-    <h1>Wortel</h1>
+    <div class="header-content">
+      <!--<h1>Wortel</h1>-->
+      <img src="../assets/logo/Logo.png" alt="Wortel" class="logo-image">
 
-    <template v-if="isLoggedIn">
-      <div class="user-actions">
-        <MedalIcon 
-          :size="28"
-          class="base-icon"
-          @click="routeScoreboard"
-        />
-        <SettingsIcon 
-          :size="28"
-          class="base-icon"
-          @click="routeSettings"
-        />
-        <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
-      </div>
-    </template>
+      <template v-if="isLoggedIn">
+        <div class="user-actions">
+          <MedalIcon 
+            :size="28"
+            class="base-icon"
+            @click="routeScoreboard"
+          />
+          <SettingsIcon 
+            :size="28"
+            class="base-icon"
+            @click="routeSettings"
+          />
+          <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
+        </div>
+      </template>
+    </div>
   </header>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
-
-h1 {
-  font-family: 'Luckiest Guy', cursive;
-  color: #3a3a3c;
-  font-size: 28px;
-  margin: 0;
-}
-
 .game-header {
   width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+.header-content {
+  width: 80%;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.logo-image {
+  height: 40px;
 }
 .user-actions {
   display: flex;
@@ -71,7 +73,7 @@ h1 {
   font-size: 0.875rem;
   color: white;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   background-color: #3a3a3c;
   transition: all 0.3s ease-in-out;
@@ -87,7 +89,7 @@ h1 {
   transition: color 0.2s ease-in-out;
 }
 .action-link:hover {
-  color: #6aaa64;
+  color: #5e8d64;
 }
 .base-icon {
   color: #3a3a3c;
@@ -95,7 +97,7 @@ h1 {
   transition: all 0.2s ease-in-out;
 }
 .base-icon:hover {
-  color: #6aaa64;
+  color: #5e8d64;
   transform: scale(1.05);
 }
 </style>
