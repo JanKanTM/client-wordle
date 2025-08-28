@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LogOut } from 'lucide-vue-next';
+import { LogOut, MedalIcon, Settings, SettingsIcon, TrophyIcon } from 'lucide-vue-next';
 
 defineProps<{
   username: string;
@@ -7,27 +7,35 @@ defineProps<{
 }>();
 
 defineEmits(['logout']);
+
+function routeScoreboard() {
+  console.log("score")
+}
+
+function routeSettings() {
+  console.log("settings")
+}
 </script>
 
 <template>
   <header class="game-header">
-
     <h1>Wortel</h1>
 
-    <div v-if="isLoggedIn" class="container">
-
-      <div class="welcome-message">
-        <span>Willkommen, {{ username }}</span>
-      </div>
-
+    <template v-if="isLoggedIn">
       <div class="user-actions">
-        <span class="action-link">Einstellungen</span>
-        <span class="action-link">Scoreboard</span>
+        <MedalIcon 
+          :size="28"
+          class="base-icon"
+          @click="routeScoreboard"
+        />
+        <SettingsIcon 
+          :size="28"
+          class="base-icon"
+          @click="routeSettings"
+        />
         <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
       </div>
-
-    </div>
-    
+    </template>
   </header>
 </template>
 
@@ -50,10 +58,6 @@ h1 {
   background-color: #ffffff;
   border-bottom: 1px solid #ddd;
 }
-.welcome-message {
-  color: #3a3a3c;
-  font-weight: 600;
-}
 .user-actions {
   display: flex;
   align-items: center;
@@ -69,7 +73,7 @@ h1 {
   border: 1px solid transparent;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #9fa3a4;
+  background-color: #3a3a3c;
   transition: all 0.3s ease-in-out;
 }
 .logout-button:hover {
@@ -84,5 +88,14 @@ h1 {
 }
 .action-link:hover {
   color: #6aaa64;
+}
+.base-icon {
+  color: #3a3a3c;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.base-icon:hover {
+  color: #6aaa64;
+  transform: scale(1.05);
 }
 </style>
