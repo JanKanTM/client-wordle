@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { LoginRequest, RegisterRequest, User } from '../types/user'
+import { loginUser, registerUser } from '../api/user'
 
 const emit = defineEmits(['login-success'])
 
@@ -50,6 +52,43 @@ const handleSubmit = async () => {
     } else {
       alert("Benutzerkonto nicht gefunden. Bitte registrieren Sie sich.");
     }
+  }
+}
+
+// alles drüber soll gelöscht werden
+
+const userData = ref<User | null>(null);
+
+// soll ausgetauscht werden mit handleSubmit
+async function handleLogin() {
+  try {
+    if (isRegistering) {
+      // password check
+      if (!username.value || !password.value) {
+        alert("Benutzername und Passwort sind erforderlich.");
+        return;
+      }
+
+      // Register
+      const credentials: RegisterRequest = {
+        username: username.value,
+        password: password.value,
+      };
+
+      userData.value = await registerUser(credentials);
+      console.log("Registrierung erfolgreich:", userData.value);
+    } else {
+      // Login
+      const credentials: LoginRequest = {
+        username: username.value,
+        password: password.value,
+      };
+
+      userData.value = await loginUser(credentials);
+      console.log("Login erfolgreich:", userData.value);
+    }
+  } catch (err) {
+    console.error("Fehler beim Login:", err);
   }
 }
 </script>

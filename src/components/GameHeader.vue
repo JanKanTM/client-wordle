@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LogOut, MedalIcon, Settings, SettingsIcon, TrophyIcon } from 'lucide-vue-next';
+import { LogOut, MedalIcon, SettingsIcon } from 'lucide-vue-next';
 
 defineProps<{
   username: string;
@@ -76,10 +76,11 @@ function routeSettings() {
   border-radius: 8px;
   cursor: pointer;
   background-color: #3a3a3c;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 .logout-button:hover {
   background-color: #6aaa64;
+  box-shadow: 0 0 12px rgba(106, 170, 100, 0.6);
   transform: scale(1.025);
 }
 .action-link {

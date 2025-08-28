@@ -1,11 +1,11 @@
 export interface User {
-    id: number;
-    username: string;
-    password: string;
-    score: number;
-    isLoggedIn: boolean;
-    isOnline: boolean;
-    isValid: boolean;
+  id: number;
+  username: string;
+  password: string;
+  score: number;
+  isLoggedIn: boolean;
+  isOnline: boolean;
+  isValid: boolean;
 }
 
 export interface RegisterRequest {
@@ -14,6 +14,6 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 }

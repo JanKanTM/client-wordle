@@ -20,8 +20,8 @@ onMounted(() => {
 })
 
 const onLoginSuccess = () => {
-  isLoggedIn.value = true
-  const user = localStorage.getItem('user')
+  isLoggedIn.value = true;
+  const user = localStorage.getItem('user');
   if (user) {
     const userData = JSON.parse(user)
     username.value = userData.username
@@ -31,6 +31,10 @@ const onLoginSuccess = () => {
 const handleLogout = () => {
   localStorage.removeItem('user');
   isLoggedIn.value = false;
+}
+
+function routeGame() {
+  router.push('/game');
 }
 </script>
 
@@ -46,13 +50,15 @@ const handleLogout = () => {
     <div class="title">
       <h1>Wortel</h1>
 
-      <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+      <p>Willkommen, {{ username }}</p>
     </div>
 
     <div class="hub-actions">
-      <button class="hub-button dark-gray-button">Anleitung</button>
-      <button class="hub-button dark-gray-button">Highscore</button>
-      <button class="hub-button play-button">Spielen</button>
+      <button class="hub-button play-button" @click="routeGame">Spielen</button>
+      <div class="secondary-actions">
+        <button class="hub-button dark-gray-button">Anleitung</button>
+        <button class="hub-button dark-gray-button">Highscore</button>
+      </div>
     </div>
 
   </div>
@@ -87,8 +93,11 @@ const handleLogout = () => {
 
 .hub-actions {
   display: flex;
-  justify-content: center;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .hub-button {
@@ -107,13 +116,24 @@ const handleLogout = () => {
 }
 
 .play-button {
+  width: 100%;
   background-color: #5e8d64;
+  padding: 10px 15px;
+  font-size: 1.7rem;
 }
 .play-button:hover {
   background-color: #6aaa64;
+  box-shadow: 0 0 12px rgba(106, 170, 100, 0.6);
+}
+
+.secondary-actions {
+  display: flex;
+  width: 100%;
+  gap: 15px;
 }
 
 .dark-gray-button {
+  flex: 1;  
   background-color: #3a3a3c;
 }
 </style>
