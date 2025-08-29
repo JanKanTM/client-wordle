@@ -59,6 +59,7 @@ function routeSettings() {
 
 .logo-image {
   height: 40px;
+  cursor: pointer;
 }
 .user-actions {
   display: flex;
