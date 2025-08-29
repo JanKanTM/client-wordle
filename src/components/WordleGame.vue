@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ArrowLeft, TimerIcon } from 'lucide-vue-next'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const WORD_LENGTH = 5
 const MAX_GUESSES = 6
@@ -15,6 +16,8 @@ const currentGuess = ref('')
 const gameStatus = ref<'playing' | 'won' | 'lost'>('playing')
 const message = ref('')
 const letterStates = ref<Record<string, 'correct' | 'present' | 'absent'>>({})
+
+const router = useRouter()
 
 const keyboardRows = [
   ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
@@ -131,12 +134,17 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
+
+//route
+const routeToHub = () => {
+  router.push('/hub');
+}
 </script>
 
 <template>
   <div class="wordle-container">
     <div class="top-container">
-      <button class="top-container-action">
+      <button class="top-container-action" @click="routeToHub">
         <ArrowLeft :size="18" />
         Verlassen
       </button>
