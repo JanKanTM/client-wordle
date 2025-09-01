@@ -3,6 +3,8 @@ import { ArrowLeft, TimerIcon } from 'lucide-vue-next'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+const gameTimer = 60
+
 const WORD_LENGTH = 5
 const MAX_GUESSES = 6
 
@@ -152,8 +154,8 @@ const routeToHub = () => {
       <h1 class="game-title">Wortel</h1>
 
       <div class="timer-container">
-        <TimerIcon :size="16" />
-        <p>60</p>
+        <TimerIcon :size="18" />
+        <p>{{ gameTimer }}</p>
       </div>
     </div> 
     
@@ -224,6 +226,21 @@ const routeToHub = () => {
 
 .timer-container {
   justify-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: white;
+  background-color: #3a3a3c;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+}
+.timer-container p {
+  font-size: 16px;
 }
 
 .top-container-action {
