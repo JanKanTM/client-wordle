@@ -1,41 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LoginForm from '../components/LoginForm.vue'
-import GameHeader from '../components/GameHeader.vue'
 import InstructionsModal from '../components/Instructions.vue'
 import type { User } from '../types/user'
 
-const isLoggedIn = ref(false)
-const user = ref<User | null>(null)
+defineProps<{
+  isLoggedIn: boolean
+  user: User | null
+}>()
+
+const emit = defineEmits(['login-success'])
+
 const router = useRouter()
 const showInstructions = ref(false)
-
-onMounted(() => {
-  const userString = localStorage.getItem('user')
-  if (userString) {
-    const userData = JSON.parse(userString)
-    if (userData.isLoggedIn) {
-      isLoggedIn.value = true
-      user.value = userData
-    }
-  }
-})
-
-const onLoginSuccess = () => {
-  isLoggedIn.value = true;
-  const userString = localStorage.getItem('user');
-  if (userString) {
-    const userData = JSON.parse(userString)
-    user.value = userData
-  }
-}
-
-const handleLogout = () => {
-  localStorage.removeItem('user');
-  isLoggedIn.value = false;
-  user.value = null;
-}
 
 const openInstructions = () => {
   showInstructions.value = true
@@ -51,10 +29,8 @@ function routeGame() {
 </script>
 
 <template>
-  <GameHeader :username="user?.username || ''" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
-
   <div v-if="!isLoggedIn">
-    <LoginForm @login-success="onLoginSuccess" />
+    <LoginForm @login-success="emit('login-success')" />
   </div>
 
   <div v-else class="hub-container">
@@ -72,7 +48,6 @@ function routeGame() {
         <button class="hub-button dark-gray-button">Highscore</button>
       </div>
     </div>
-
   </div>
 
   <InstructionsModal :show="showInstructions" @close="closeInstructions" />

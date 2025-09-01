@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import type { LoginRequest, RegisterRequest, User } from '../types/user'
 import { loginUser, registerUser } from '../api/user'
 
@@ -55,7 +56,6 @@ async function handleLogin() {
       if (userData.value) {
         localStorage.setItem('user', JSON.stringify({ ...userData.value, isLoggedIn: true }));
         emit('login-success');
-
       }
     } 
   } catch (err) {
