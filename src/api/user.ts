@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { RegisterRequest, LoginRequest } from "../types/user.ts";
 
-const API_URL = "http://localhost:8080";
+const API_URL = "http://localhost:8080/api";
 
 /* Register user */
 export async function registerUser(credentials: RegisterRequest) {
@@ -15,7 +15,7 @@ export async function registerUser(credentials: RegisterRequest) {
 
 /* Login user */
 export async function loginUser(credentials: LoginRequest) {
-    try {
+  try {
     const response = await axios.post(`${API_URL}/login`, credentials);
     return response.data; 
   } catch (error) {
