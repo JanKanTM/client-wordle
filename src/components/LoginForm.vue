@@ -10,56 +10,8 @@ const password = ref('')
 const confirmPassword = ref('')
 const isRegistering = ref(false)
 
-// In-memory user store to simulate a backend
-const users = ref(JSON.parse(localStorage.getItem('users') || '[]'))
-
-const handleSubmit = async () => {
-  if (!username.value || !password.value) {
-      alert("Benutzername und Passwort sind erforderlich.");
-      return;
-  }
-
-  if (isRegistering.value) {
-    // Registration logic
-    if (password.value !== confirmPassword.value) {
-      alert("Die Passwörter stimmen nicht überein!");
-      return;
-    }
-    if (password.value.length < 4) {
-      alert("Das Passwort muss mindestens 4 Zeichen lang sein.");
-      return;
-    }
-
-    // Create new user (simulation)
-    users.value.push({ username: username.value, password: password.value });
-    localStorage.setItem('users', JSON.stringify(users.value));
-
-    // Automatically log in
-    localStorage.setItem('user', JSON.stringify({ username: username.value, isLoggedIn: true }));
-    emit('login-success');
-
-  } else {
-    // Login logic
-    const userExists = users.value.find(u => u.username === username.value);
-
-    if (userExists) {
-      if (userExists.password === password.value) {
-        localStorage.setItem('user', JSON.stringify({ username: username.value, isLoggedIn: true }));
-        emit('login-success');
-      } else {
-        alert("Falsches Passwort!");
-      }
-    } else {
-      alert("Benutzerkonto nicht gefunden. Bitte registrieren Sie sich.");
-    }
-  }
-}
-
-// alles drüber soll gelöscht werden
-
 const userData = ref<User | null>(null);
 
-// soll ausgetauscht werden mit handleSubmit
 async function handleLogin() {
   try {
     // password check
@@ -99,6 +51,12 @@ async function handleLogin() {
 
       userData.value = await loginUser(credentials);
       console.log("Login erfolgreich:", userData.value);
+
+      if (userData.value) {
+        localStorage.setItem('user', JSON.stringify({ ...userData.value, isLoggedIn: true }));
+        emit('login-success');
+
+      }
     } 
   } catch (err) {
     console.error("Fehler beim Login:", err);
@@ -111,7 +69,7 @@ async function handleLogin() {
     <div class="login-form-card">
       <h1 class="login-form-title">Wortel</h1>
 
-      <form @submit.prevent="handleSubmit">
+      <form @submit.prevent="handleLogin">
         <div>
           <label for="username">Benutzername</label>
           <input id="username" type="text" placeholder="Benutzername" v-model="username" required />
