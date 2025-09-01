@@ -13,7 +13,7 @@ const emit = defineEmits(['close']);
     <div v-if="show" class="modal-overlay" @click.self="emit('close')">
       <div class="modal-content">
         <button class="close-button" @click="emit('close')">
-          <X :size="28" />
+          <X :size="24" />
         </button>
         <h2>Anleitung</h2>
         <p>Errate das Wort in 6 Versuchen.</p>
@@ -151,8 +151,8 @@ const emit = defineEmits(['close']);
 }
 
 .tile.correct {
-  background-color: #5e8d64;
-  border-color: #5e8d64;
+  background-color: #6aaa64;
+  border-color: #6aaa64;
 }
 
 .tile.present {

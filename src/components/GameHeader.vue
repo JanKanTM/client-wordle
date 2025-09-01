@@ -1,34 +1,12 @@
 <script setup lang="ts">
 import { LogOut, MedalIcon, SettingsIcon } from 'lucide-vue-next';
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
+defineProps<{
+  username: string;
+  isLoggedIn: boolean;
+}>();
 
-const isLoggedIn = ref(false);
-const username = ref('');
-
-const checkLoginStatus = () => {
-  const user = localStorage.getItem('user');
-  if (user) {
-    isLoggedIn.value = true;
-    username.value = JSON.parse(user).username;
-  } else {
-    isLoggedIn.value = false;
-    username.value = '';
-  }
-};
-
-onMounted(() => {
-  checkLoginStatus();
-  window.addEventListener('storage', checkLoginStatus);
-});
-
-function handleLogout() {
-  localStorage.removeItem('user');
-  checkLoginStatus();
-  router.push('/');
-}
+defineEmits(['logout']);
 
 function routeScoreboard() {
   console.log("score")
@@ -43,7 +21,7 @@ function routeSettings() {
   <header class="game-header">
     <div class="header-content">
 
-      <img src="../assets/logo/Logo.png" alt="Wortel" class="logo-image" @click="() => router.push('/')">
+      <img src="../assets/logo/Logo.png" alt="Wortel" class="logo-image">
 
       <template v-if="isLoggedIn">
         <div class="user-actions">
@@ -57,7 +35,7 @@ function routeSettings() {
             class="base-icon"
             @click="routeSettings"
           />
-          <button @click="handleLogout" class="logout-button"> <LogOut :size="16" /> Logout</button>
+          <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
         </div>
       </template>
     </div>
