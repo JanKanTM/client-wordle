@@ -1,7 +1,7 @@
 
 # Wortel – Wordle-Clone mit Vue 3, TypeScript & Vite
 
-**Autor:** Jan Hildmann  
+**Entwickler:** Jan Hildmann  
 **Repository:** [client-wordle](https://github.com/JanKanTM/client-wordle)  
 **Lizenz:** MIT
 
