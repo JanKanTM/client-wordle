@@ -5,11 +5,7 @@ import useAuth from '../service/useAuth';
 
 const router = useRouter()
 
-defineProps<{
-  isAuthenticated: boolean;
-}>();
-
-const { logout } = useAuth();
+const { logout, isAuthenticated } = useAuth();
 
 defineEmits(['logout']);
 

@@ -8,11 +8,24 @@ const authToken = ref<string | null>(sessionStorage.getItem('auth_token'))
 
 const stateMessage = ref('')
 
+const hashPassword = async (password: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const login = async (credentials: LoginRequest) => {
   try {
     stateMessage.value = ''
+    
+    const hashedCredentials = {
+      ...credentials,
+      password: await hashPassword(credentials.password)
+    }
 
-    const result = await loginUser(credentials)
+    const result = await loginUser(hashedCredentials)
     currentUser.value = result.user
     authToken.value = result.token
 
@@ -30,7 +43,12 @@ const register = async (credentials: RegisterRequest) => {
   try {
     stateMessage.value = ''
 
-    const result = await registerUser(credentials)
+    const hashedCredentials = {
+      ...credentials,
+      password: await hashPassword(credentials.password)
+    }
+
+    const result = await registerUser(hashedCredentials)
     currentUser.value = result.user
     authToken.value = result.token
 

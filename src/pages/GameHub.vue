@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LoginForm from '../components/LoginForm.vue'
-import GameHeader from '../components/GameHeader.vue'
 import InstructionsModal from '../components/Instructions.vue'
 import useAuth from '../service/useAuth'
 
@@ -20,10 +19,7 @@ function routeGame() {
 </script>
 
 <template>
-  <GameHeader 
-    :username="currentUser?.username || ''" 
-    :isAuthenticated="isAuthenticated" 
-  />
+  <!-- <GameHeader />  -->
 
   <div v-if="!isAuthenticated">
     <LoginForm />
