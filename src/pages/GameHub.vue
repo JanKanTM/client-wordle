@@ -1,48 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LoginForm from '../components/LoginForm.vue'
 import GameHeader from '../components/GameHeader.vue'
 import InstructionsModal from '../components/Instructions.vue'
-import type { User } from '../types/user'
+import useAuth from '../service/useAuth'
 
-const isLoggedIn = ref(false)
-const user = ref<User | null>(null)
 const router = useRouter()
 const showInstructions = ref(false)
+const { currentUser, isAuthenticated, logout } = useAuth()
 
-onMounted(() => {
-  const userString = localStorage.getItem('user')
-  if (userString) {
-    const userData = JSON.parse(userString)
-    if (userData.isLoggedIn) {
-      isLoggedIn.value = true
-      user.value = userData
-    }
-  }
-})
-
-const onLoginSuccess = () => {
-  isLoggedIn.value = true;
-  const userString = localStorage.getItem('user');
-  if (userString) {
-    const userData = JSON.parse(userString)
-    user.value = userData
-  }
+const handleLogout = async () => {
+  await logout()
+  router.push('/')
 }
 
-const handleLogout = () => {
-  localStorage.removeItem('user');
-  isLoggedIn.value = false;
-  user.value = null;
-}
-
-const openInstructions = () => {
-  showInstructions.value = true
-}
-
-const closeInstructions = () => {
-  showInstructions.value = false
+const toggleInstructions = (show: boolean) => {
+  showInstructions.value = show
 }
 
 function routeGame() {
@@ -51,31 +25,32 @@ function routeGame() {
 </script>
 
 <template>
-  <GameHeader :username="user?.username || ''" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
+  <GameHeader 
+    :username="currentUser?.username || ''" 
+    :isLoggedIn="isAuthenticated" 
+    @logout="handleLogout" 
+  />
 
-  <div v-if="!isLoggedIn">
-    <LoginForm @login-success="onLoginSuccess" />
+  <div v-if="!isAuthenticated">
+    <LoginForm />
   </div>
 
   <div v-else class="hub-container">
-
     <div class="title">
       <h1>Wortel</h1>
-
-      <p>Willkommen, {{ user?.username }}</p>
+      <p>Willkommen, {{ currentUser?.username }}</p>
     </div>
 
     <div class="hub-actions">
       <button class="hub-button play-button" @click="routeGame">Spielen</button>
       <div class="secondary-actions">
-        <button class="hub-button dark-gray-button" @click="openInstructions">Anleitung</button>
+        <button class="hub-button dark-gray-button" @click="toggleInstructions(true)">Anleitung</button>
         <button class="hub-button dark-gray-button">Highscore</button>
       </div>
     </div>
-
   </div>
 
-  <InstructionsModal :show="showInstructions" @close="closeInstructions" />
+  <InstructionsModal :show="showInstructions" @close="() => toggleInstructions(false)" />
 </template>
 
 <style scoped>
