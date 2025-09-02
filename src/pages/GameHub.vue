@@ -8,12 +8,7 @@ import useAuth from '../service/useAuth'
 
 const router = useRouter()
 const showInstructions = ref(false)
-const { currentUser, isAuthenticated, logout } = useAuth()
-
-const handleLogout = async () => {
-  await logout()
-  router.push('/')
-}
+const { currentUser, isAuthenticated } = useAuth()
 
 const toggleInstructions = (show: boolean) => {
   showInstructions.value = show
@@ -27,8 +22,7 @@ function routeGame() {
 <template>
   <GameHeader 
     :username="currentUser?.username || ''" 
-    :isLoggedIn="isAuthenticated" 
-    @logout="handleLogout" 
+    :isAuthenticated="isAuthenticated" 
   />
 
   <div v-if="!isAuthenticated">

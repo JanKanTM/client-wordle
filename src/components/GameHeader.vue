@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { LogOut, MedalIcon, SettingsIcon } from 'lucide-vue-next';
+import { useRouter } from 'vue-router'
+import useAuth from '../service/useAuth';
+
+const router = useRouter()
 
 defineProps<{
-  username: string;
-  isLoggedIn: boolean;
+  isAuthenticated: boolean;
 }>();
+
+const { logout } = useAuth();
 
 defineEmits(['logout']);
 
+const handleLogout = async () => {
+  await logout()
+  router.push('/')
+}
 function routeScoreboard() {
   console.log("score")
 }
@@ -23,7 +32,7 @@ function routeSettings() {
 
       <img src="../assets/logo/Logo.png" alt="Wortel" class="logo-image">
 
-      <template v-if="isLoggedIn">
+      <template v-if="isAuthenticated">
         <div class="user-actions">
           <MedalIcon 
             :size="28"
@@ -35,7 +44,7 @@ function routeSettings() {
             class="base-icon"
             @click="routeSettings"
           />
-          <button @click="$emit('logout')" class="logout-button"> <LogOut :size="16" /> Logout</button>
+          <button @click="handleLogout" class="logout-button"> <LogOut :size="16" /> Logout</button>
         </div>
       </template>
     </div>
