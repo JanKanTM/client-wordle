@@ -1,24 +1,73 @@
-import axios from "axios";
-import type { RegisterRequest, LoginRequest } from "../types/user.ts";
+import api from "axios";
+import type { AxiosResponse } from "axios";
 
 const API_URL = "http://localhost:8080/api";
 
-/* Register user */
-export async function registerUser(credentials: RegisterRequest) {
-  try {
-    const response = await axios.post(`${API_URL}/register`, credentials);
-    return response.data; 
-  } catch (error) {
-    throw new Error("Registrierung fehlgeschlagen");
+export interface User {
+  _id: string;
+  username: string;
+  score: number;
+  isValid: boolean;
+  createdAt: string;
+}
+
+export interface RegisterRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  error?: string;
+  errorCode?: number;
+  data: {
+    user: User;
+    token: string;
   }
 }
 
-/* Login user */
-export async function loginUser(credentials: LoginRequest) {
-  try {
-    const response = await axios.post(`${API_URL}/login`, credentials);
-    return response.data; 
-  } catch (error) {
-    throw new Error("Login fehlgeschlagen");
-  }
+export interface UserResponse {
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+  data: User;
+}
+
+/**
+ * Login user
+ * POST /login
+ **/
+export function loginUser(credentials: LoginRequest): Promise<{user: User; token: string}> {
+  return api.post<AuthResponse>(`${API_URL}/login`, credentials)
+    .then((response: AxiosResponse<AuthResponse>) => response.data.data)
+}
+
+/**
+ * Register user
+ * POST /login
+ **/
+export function registerUser(credentials: RegisterRequest): Promise<{ user: User; token: string }> {
+  return api.post<AuthResponse>(`${API_URL}/register`, credentials)
+    .then((response: AxiosResponse<AuthResponse>) => response.data.data)
+}
+
+/**
+ * Get current user
+ * GET /profile
+ **/
+export function getCurrentUser(): Promise<User> {
+  return api.get<UserResponse>(`${API_URL}/profile`)
+    .then((response: AxiosResponse<UserResponse>) => response.data.data)
+}
+
+/**
+ * Logout user (client-side)
+ **/
+export function logoutUser(): void {
+  sessionStorage.removeItem('auth_token')
 }
