@@ -79,3 +79,9 @@
 .toggle-button:hover {
   color: #5e8d64;
 }
+
+.error-info {
+  color: #8e3737;
+  font-size: 12px;
+  text-align: center;
+}

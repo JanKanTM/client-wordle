@@ -9,14 +9,17 @@ const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const isRegistering = ref(false)
+const errMessage = ref('')
 
 const userData = ref<User | null>(null);
 
 async function handleLogin() {
+  errMessage.value = ''
+
   try {
     // password check
     if (!username.value || !password.value) {
-      alert("Benutzername und Passwort sind erforderlich.");
+      errMessage.value = 'Benutzername und Passwort sind erforderlich.';
       return;
     }
 
@@ -24,26 +27,20 @@ async function handleLogin() {
       // Register
 
       // basic logic
-      if (password.value !== confirmPassword.value) {
-        alert("Die Passwörter stimmen nicht überein!");
-        return;
-      }
-      if (password.value.length < 4) {
-        alert("Das Passwort muss mindestens 4 Zeichen lang sein.");
-        return;
-      }
-
-      const credentials: RegisterRequest = {
+      if (checkPassword()) {
+        const credentials: RegisterRequest = {
         username: username.value,
         password: password.value,
       };
 
-      userData.value = await registerUser(credentials);
-      console.log("Registrierung erfolgreich:", userData.value);
+        userData.value = await registerUser(credentials);
+        console.log("Registrierung erfolgreich:", userData.value);
 
-      isRegistering.value = false;
+        isRegistering.value = false;
+      }
     } else {
       // Login
+      
       const credentials: LoginRequest = {
         username: username.value,
         password: password.value,
@@ -55,12 +52,24 @@ async function handleLogin() {
       if (userData.value) {
         localStorage.setItem('user', JSON.stringify({ ...userData.value, isLoggedIn: true }));
         emit('login-success');
-
       }
     } 
   } catch (err) {
     console.error("Fehler beim Login:", err);
   }
+}
+
+function checkPassword(): boolean {
+  if (password.value !== confirmPassword.value) {
+    errMessage.value = 'Die Passwörter stimmen nicht überein.'
+    return false;
+  }
+  if (password.value.length < 4) {
+    errMessage.value = 'Das Passwort muss mindestens 4 Zeichen lang sein.';
+    return false;
+  }
+
+  return true;
 }
 </script>
 
@@ -86,6 +95,8 @@ async function handleLogin() {
             <input id="confirm-password" type="password" placeholder="Passwort bestätigen" v-model="confirmPassword" :required="isRegistering" />
           </div>
         </Transition>
+        
+        <p class="error-info">{{ errMessage }}</p>
 
         <button type="submit" class="submit-button">
           {{ isRegistering ? 'Registrieren' : 'Anmelden' }}
