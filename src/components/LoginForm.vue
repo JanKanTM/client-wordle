@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { LoginRequest, RegisterRequest, User } from '../types/user'
-import { loginUser, registerUser } from '../api/user'
+import useAuth from '../service/useAuth'
 
 const emit = defineEmits(['login-success'])
+
+const { login, register, message } = useAuth()
 
 const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const isRegistering = ref(false)
 const errMessage = ref('')
-
-const userData = ref<User | null>(null);
 
 async function handleLogin() {
   errMessage.value = ''
@@ -25,37 +24,45 @@ async function handleLogin() {
 
     if (isRegistering.value) {
       // Register
-
-      // basic logic
       if (checkPassword()) {
-        const credentials: RegisterRequest = {
-        username: username.value,
-        password: password.value,
-      };
 
-        userData.value = await registerUser(credentials);
-        console.log("Registrierung erfolgreich:", userData.value);
+        const credentials = {
+          username: username.value,
+          password: password.value,
+        };
 
-        isRegistering.value = false;
+        const result = await register(credentials);
+
+        if (result) {
+          console.log('Registrierung erfolgreich:', result);
+          emit('login-success');
+
+          resetForm();
+        } else {
+          errMessage.value = message.value || 'Registrierung fehlgeschlagen';
+        }
       }
     } else {
       // Login
-      
-      const credentials: LoginRequest = {
+      const credentials = {
         username: username.value,
         password: password.value,
       };
+      
+      const result = await login(credentials);
 
-      userData.value = await loginUser(credentials);
-      console.log("Login erfolgreich:", userData.value);
-
-      if (userData.value) {
-        localStorage.setItem('user', JSON.stringify({ ...userData.value, isLoggedIn: true }));
+      if (result) {
+        console.log('Login erfolgreich:', result);
         emit('login-success');
+
+        resetForm();
+      } else {
+        errMessage.value = message.value || 'Login fehlgeschlagen';
       }
     } 
   } catch (err) {
     console.error("Fehler beim Login:", err);
+    errMessage.value = 'Ein unerwarteter Fehler ist aufgetreten.';
   }
 }
 
@@ -70,6 +77,19 @@ function checkPassword(): boolean {
   }
 
   return true;
+}
+
+function resetForm() {
+  username.value = '';
+  password.value = '';
+  confirmPassword.value = '';
+  errMessage.value = '';
+}
+
+function toggleMode() {
+  isRegistering.value = !isRegistering.value;
+  errMessage.value = '';
+  confirmPassword.value = '';
 }
 </script>
 
@@ -104,7 +124,7 @@ function checkPassword(): boolean {
       </form>
 
       <div class="toggle-container">
-        <button @click="isRegistering = !isRegistering" class="toggle-button">
+        <button @click="toggleMode" class="toggle-button">
           {{ isRegistering ? 'Haben Sie bereits ein Konto? Anmelden' : 'Noch kein Konto? Registrieren' }}
         </button>
       </div>
