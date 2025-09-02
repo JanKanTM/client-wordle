@@ -3,7 +3,6 @@
 
 **Entwickler:** Jan Hildmann  
 **Repository:** [client-wordle](https://github.com/JanKanTM/client-wordle)  
-**Lizenz:** MIT
 
 
 ## Projektbeschreibung
@@ -111,11 +110,3 @@ client-wordle/
 - **Routing:** Die Navigation wird über `src/router/index.ts` gesteuert
 - **Authentifizierung:** Die Logik liegt in `src/service/useAuth.ts`
 - **API:** Die Schnittstellen und Typen sind in `src/api/user.ts` definiert
-
-## Mitwirken
-
-Pull Requests und Issues sind willkommen! Bitte stelle sicher, dass dein Code den Styleguides entspricht und alle relevanten Tests bestanden werden.
-
-## Lizenz
-
-Dieses Projekt steht unter der MIT-Lizenz.
