@@ -19,6 +19,6 @@ export interface UsersResponse {
  * GET /leaderboard
  **/
 export function getLeaderboard(): Promise<User[]> {
-    return api.get<UsersResponse>('/leaderboard')
-        .then((response: AxiosResponse<UsersResponse>) => response.data.data)
+  return api.get<UsersResponse>(`${API_URL}/leaderboard`)
+    .then((response: AxiosResponse<UsersResponse>) => response.data.data)
 }
