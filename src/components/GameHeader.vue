@@ -14,7 +14,7 @@ const handleLogout = async () => {
   router.push('/')
 }
 function routeScoreboard() {
-  console.log("score")
+  router.push('/leaderboard')
 }
 
 function routeSettings() {

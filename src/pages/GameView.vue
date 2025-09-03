@@ -22,7 +22,7 @@ onMounted(() => {
   */
   const token = sessionStorage.getItem('auth_token')
   if (token) {
-    console.log('true')
+    console.log('true') // Todo
   } else {
     router.push('/hub')
   }

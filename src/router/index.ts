@@ -9,7 +9,7 @@ const routes : RouteRecordRaw[] = [
     { path: '/', redirect: '/hub' },
     { path: '/hub', component: GameHub },
     { path: '/game', component: GameView },
-    { path: '/podium', component: GameLeaderboard}
+    { path: '/leaderboard', component: GameLeaderboard}
 ];
 
 const router = createRouter({
