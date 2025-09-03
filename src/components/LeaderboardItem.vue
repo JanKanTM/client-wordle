@@ -1,3 +1,34 @@
+<script setup lang="ts">
+import { Trophy, Medal, CrownIcon } from 'lucide-vue-next'
+
+interface Props {
+  rank: number
+  username: string
+  points: number
+}
+
+defineProps<Props>()
+
+const formatPoints = (points: number): string => {
+  return points.toLocaleString()
+}
+
+const getIcon = (rank: number) => {
+  if (rank === 1) return CrownIcon
+  if (rank <= 3) return Medal
+  return Trophy
+}
+
+const getBackgroundColor = (rank: number): string => {
+  switch(rank) {
+    case 1: return '#fbbf24' // Gold
+    case 2: return '#9ca3af' // Silber
+    case 3: return '#cd7c2f' // Bronze
+    default: return '#cbd5e0'
+  }
+}
+</script>
+
 <template>
   <div class="leaderboard-item">
     <div class="icon-container" :style="{ backgroundColor: getBackgroundColor(rank) }">
@@ -18,37 +49,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { Trophy, Medal, Star } from 'lucide-vue-next'
-
-interface Props {
-  rank: number
-  username: string
-  points: number
-}
-
-defineProps<Props>()
-
-const formatPoints = (points: number): string => {
-  return points.toLocaleString()
-}
-
-const getIcon = (rank: number) => {
-  if (rank === 1) return Trophy
-  if (rank <= 3) return Medal
-  return Star
-}
-
-const getBackgroundColor = (rank: number): string => {
-  switch(rank) {
-    case 1: return '#fbbf24' // Gold
-    case 2: return '#9ca3af' // Silber
-    case 3: return '#cd7c2f' // Bronze
-    default: return '#cbd5e0' // Standard grau für alle anderen
-  }
-}
-</script>
 
 <style scoped>
 .leaderboard-item {
@@ -115,41 +115,5 @@ const getBackgroundColor = (rank: number): string => {
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-/* Responsive Design */
-@media (max-width: 480px) {
-  .leaderboard-item {
-    padding: 12px;
-  }
-  
-  .icon-container {
-    width: 40px;
-    height: 40px;
-    margin-right: 12px;
-  }
-  
-  .icon {
-    font-size: 20px;
-  }
-  
-  .rank {
-    font-size: 16px;
-    margin-right: 12px;
-    min-width: 35px;
-  }
-  
-  .username {
-    font-size: 14px;
-    margin-right: 12px;
-  }
-  
-  .points {
-    font-size: 16px;
-  }
-  
-  .points-label {
-    font-size: 11px;
-  }
 }
 </style>

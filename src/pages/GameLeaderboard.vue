@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref } from 'vue'
+// import { computed, onMounted } from 'vue'
 import LeaderboardItem from '../components/LeaderboardItem.vue'
-import useLeaderboard from '../service/useLeaderboard'
+// import useLeaderboard from '../service/useLeaderboard'
 
+// API Integration (auskommentiert für Testdaten)
+/*
 const { leaderboardUsers, isLoading, message, loadLeaderboard } = useLeaderboard()
 
 const players = computed(() => 
@@ -16,12 +19,68 @@ const players = computed(() =>
 onMounted(() => {
   loadLeaderboard()
 })
+*/
+
+// Testdaten für die Entwicklung
+const players = ref([
+  {
+    username: "WordleMaster",
+    points: 15750,
+    rank: 1
+  },
+  {
+    username: "LetterNinja",
+    points: 14200,
+    rank: 2
+  },
+  {
+    username: "PuzzlePro",
+    points: 13800,
+    rank: 3
+  },
+  {
+    username: "GuessKing",
+    points: 12500,
+    rank: 4
+  },
+  {
+    username: "WordHunter",
+    points: 11900,
+    rank: 5
+  },
+  {
+    username: "GameExplorer",
+    points: 10500,
+    rank: 6
+  },
+  {
+    username: "VocabMaster",
+    points: 9800,
+    rank: 7
+  },
+  {
+    username: "WordWizard",
+    points: 8900,
+    rank: 8
+  },
+  {
+    username: "LetterLord",
+    points: 7500,
+    rank: 9
+  },
+  {
+    username: "WordSmith",
+    points: 6800,
+    rank: 10
+  }
+])
 </script>
 
 <template>
   <div class="leaderboard-container">
     <h2 class="leaderboard-title">Game Leaderboard</h2>
     
+    <!-- API Integration Template (auskommentiert für Testdaten)
     <div v-if="isLoading" class="loading-state">
       Lade Leaderboard...
     </div>
@@ -31,6 +90,9 @@ onMounted(() => {
     </div>
     
     <div v-else class="leaderboard-list">
+    -->
+    
+    <div class="leaderboard-list">
       <LeaderboardItem
         v-for="player in players"
         :key="player.username"
@@ -44,7 +106,7 @@ onMounted(() => {
 
 <style scoped>
 .leaderboard-container {
-  max-width: 600px;
+  max-width: 750px;
   margin: 0 auto;
   padding: 20px;
 }
