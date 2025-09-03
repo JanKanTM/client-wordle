@@ -1,7 +1,6 @@
 import api from "axios";
 import type { AxiosResponse } from "axios";
-
-const API_URL = "http://localhost:8080/api";
+import { API_URL } from "../config/api.config";
 
 export interface User {
   _id: string;
