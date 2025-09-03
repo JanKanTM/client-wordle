@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-// import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { ArrowLeft } from 'lucide-vue-next'
 import LeaderboardItem from '../components/LeaderboardItem.vue'
-// import useLeaderboard from '../service/useLeaderboard'
+import useLeaderboard from '../service/useLeaderboard'
 
-// API Integration (auskommentiert für Testdaten)
-/*
+const router = useRouter()
+
 const { leaderboardUsers, isLoading, message, loadLeaderboard } = useLeaderboard()
+
+const routeToHub = () => router.push('/hub')
 
 const players = computed(() => 
   leaderboardUsers.value.map((user, index) => ({
@@ -20,74 +24,21 @@ onMounted(() => {
   loadLeaderboard()
 
   const token = sessionStorage.getItem('auth_token')
-  if (token) {
-    console.log('true') // Todo
-  } else {
+  if (!token) {
     router.push('/hub')
   }
 })
-*/
-
-// Testdaten für die Entwicklung
-const players = ref([
-  {
-    username: "WordleMaster",
-    points: 15750,
-    rank: 1
-  },
-  {
-    username: "LetterNinja",
-    points: 14200,
-    rank: 2
-  },
-  {
-    username: "PuzzlePro",
-    points: 13800,
-    rank: 3
-  },
-  {
-    username: "GuessKing",
-    points: 12500,
-    rank: 4
-  },
-  {
-    username: "WordHunter",
-    points: 11900,
-    rank: 5
-  },
-  {
-    username: "GameExplorer",
-    points: 10500,
-    rank: 6
-  },
-  {
-    username: "VocabMaster",
-    points: 9800,
-    rank: 7
-  },
-  {
-    username: "WordWizard",
-    points: 8900,
-    rank: 8
-  },
-  {
-    username: "LetterLord",
-    points: 7500,
-    rank: 9
-  },
-  {
-    username: "WordSmith",
-    points: 6800,
-    rank: 10
-  }
-])
 </script>
 
 <template>
   <div class="leaderboard-container">
+    <button class="top-container-action" @click="routeToHub">
+      <ArrowLeft :size="18" />
+      Zurück
+    </button>
+
     <h2 class="leaderboard-title">Game Leaderboard</h2>
     
-    <!-- API Integration Template (auskommentiert für Testdaten)
     <div v-if="isLoading" class="loading-state">
       Lade Leaderboard...
     </div>
@@ -97,9 +48,6 @@ const players = ref([
     </div>
     
     <div v-else class="leaderboard-list">
-    -->
-    
-    <div class="leaderboard-list">
       <LeaderboardItem
         v-for="player in players"
         :key="player.username"
@@ -144,5 +92,25 @@ const players = ref([
 
 .error-state {
   color: #8e3737;
+}
+
+.top-container-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #3a3a3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.top-container-action:hover {
+  transform: scale(1.025);
 }
 </style>
