@@ -4,6 +4,7 @@ import { loginUser, registerUser, getCurrentUser, logoutUser } from "../api/user
 
 const currentUser = ref<User | null>(null);
 const isAuthenticated = computed(() => !!currentUser.value)
+const isAdmin = computed(() => currentUser.value?.role === "ADMIN");
 const authToken = ref<string | null>(sessionStorage.getItem('auth_token'))
 
 const stateMessage = ref('')
@@ -95,6 +96,7 @@ export default function useAuth() {
     // State
     currentUser,
     isAuthenticated,
+    isAdmin,
     authToken,
     message: computed(() => stateMessage.value),
 

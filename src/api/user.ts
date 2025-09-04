@@ -49,7 +49,7 @@ export function loginUser(credentials: LoginRequest): Promise<{user: User; token
 
 /**
  * Register user
- * POST /login
+ * POST /register
  **/
 export function registerUser(credentials: RegisterRequest): Promise<{ user: User; token: string }> {
   return api.post<AuthResponse>(`${API_URL}/register`, credentials)
