@@ -253,7 +253,7 @@ const routeToHub = () => {
   font-weight: bold;
   color: white;
   background-color: #3a3a3c;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;

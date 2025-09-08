@@ -35,7 +35,6 @@ onMounted(() => {
       <WordleGame />
     </main>
   </div>
-    
 </template>
 
 <style scoped>
@@ -46,8 +45,8 @@ onMounted(() => {
   width: 100%;
 }
 main {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 </style>  

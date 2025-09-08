@@ -65,7 +65,7 @@ const sendHello = () => {
 }
 
 .button-disabled {
-    background-color: #787c7e;  /* Wordle's grey color */
+    background-color: #787c7e;
     cursor: not-allowed;
     opacity: 0.7;
 }
@@ -79,12 +79,12 @@ const sendHello = () => {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #dc3545;  /* Red for disconnected */
+    background-color: #dc3545;
     transition: background-color 0.3s ease;
 }
 
 .connection-indicator.connected {
-    background-color: #198754;  /* Green for connected */
+    background-color: #198754;
 }
 
 .error {
