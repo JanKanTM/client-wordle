@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ArrowLeft, TimerIcon } from 'lucide-vue-next'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useWebSocket } from '../service/useWebSocket'
+
+const { currentWord } = useWebSocket()
 
 const gameTimer = 60
 
 const WORD_LENGTH = 5
 const MAX_GUESSES = 6
 
-// Eine einfache Wortliste für die Demo
-const wordList = ['APFEL', 'HAUSE', 'WORTE', 'SPIEL', 'SONNE', 'TISCH', 'STUHL']
-const targetWord = ref('')
+// Das Zielwort kommt vom WebSocket
+const targetWord = computed(() => currentWord.value.toUpperCase())
 
 const guesses = ref<string[]>(Array(MAX_GUESSES).fill(''))
 const currentRow = ref(0)
@@ -60,7 +62,7 @@ const board = computed(() => {
 })
 
 const startNewGame = () => {
-  targetWord.value = wordList[Math.floor(Math.random() * wordList.length)]
+  // Das Zielwort wird jetzt vom WebSocket gesteuert
   guesses.value = Array(MAX_GUESSES).fill('')
   currentRow.value = 0
   currentGuess.value = ''
@@ -127,6 +129,14 @@ const handleKeydown = (e: KeyboardEvent) => {
     handleKey(e.key)
   }
 }
+
+watch(currentWord, (newWord, oldWord) => {
+  if (newWord && oldWord && newWord.toUpperCase() !== oldWord.toUpperCase()) {
+    message.value = 'Ein neues Wort ist da! Das Spiel wird zurückgesetzt.'
+    setTimeout(() => (message.value = ''), 3000)
+    startNewGame()
+  }
+})
 
 onMounted(() => {
   startNewGame()

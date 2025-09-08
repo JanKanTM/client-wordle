@@ -8,6 +8,8 @@ export function useWebSocket() {
     const messages = ref<any[]>([])
     const error = ref<string | null>(null)
 
+    const currentWord = ref<string>('')
+
     const stompClient = new Client({
         brokerURL: WS_URL,
         debug: (str) => {
@@ -25,10 +27,17 @@ export function useWebSocket() {
                 error.value = null;
                 console.log('Connected:', frame);
                 
-                // Subscribe to game topic
                 stompClient.subscribe(WS_SUBSCRIPTIONS.WORD, (message: IMessage) => {
-                    const payload = JSON.parse(message.body);
-                    messages.value.push(payload);
+                    try {
+                        const payload = JSON.parse(message.body);
+                        if (payload.body && payload.body.word) {
+                            console.log('Neues Wort:', payload.body.word);
+                            currentWord.value = payload.body.word;
+                        }
+                        messages.value.push(payload);
+                    } catch (e) {
+                        console.error('Fehler beim Parsen der JSON-Nachricht:', e);
+                    }
                 });
             };
 
@@ -80,6 +89,7 @@ export function useWebSocket() {
         isConnected,
         messages,
         error,
+        currentWord,
         connect,
         disconnect,
         sendMessage
