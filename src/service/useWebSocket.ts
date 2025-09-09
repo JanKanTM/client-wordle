@@ -90,6 +90,7 @@ export function useWebSocket() {
         messages,
         error,
         currentWord,
+        stompClient,
         connect,
         disconnect,
         sendMessage
