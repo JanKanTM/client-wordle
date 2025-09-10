@@ -1,44 +1,26 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Client } from '@stomp/stompjs'
-import type { IMessage } from '@stomp/stompjs'
-import { WS_URL, WS_SUBSCRIPTIONS } from '../config/websocket.config'
+import type { IMessage, StompSubscription } from '@stomp/stompjs'
+import { WS_URL } from '../config/websocket.config'
 
 export function useWebSocket() {
     const isConnected = ref(false)
     const messages = ref<any[]>([])
     const error = ref<string | null>(null)
 
-    const currentWord = ref<string>('')
-
     const stompClient = new Client({
         brokerURL: WS_URL,
-        debug: (str) => {
-            console.log(str);
-        },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
-    });
+        heartbeatOutgoing: 4000
+    })
 
     const connect = async () => {
         try {
-            stompClient.onConnect = (frame) => {
+            stompClient.onConnect = () => {
                 isConnected.value = true;
                 error.value = null;
-                console.log('Connected:', frame);
-                
-                stompClient.subscribe(WS_SUBSCRIPTIONS.WORD, (message: IMessage) => {
-                    try {
-                        const payload = JSON.parse(message.body);
-                        if (payload.body && payload.body.word) {
-                            console.log('Neues Wort:', payload.body.word);
-                            currentWord.value = payload.body.word;
-                        }
-                        messages.value.push(payload);
-                    } catch (e) {
-                        console.error('Fehler beim Parsen der JSON-Nachricht:', e);
-                    }
-                });
+                console.log('Connected to Websocket!');
             };
 
             stompClient.onStompError = (frame) => {
@@ -52,15 +34,25 @@ export function useWebSocket() {
             };
 
             await stompClient.activate();
-
         } catch (err) {
             error.value = `Connection error: ${err}`;
             isConnected.value = false;
         }
     };
 
+    const subscribe = (
+        destination: string,
+        callback: (msg: IMessage) => void
+    ): StompSubscription | null => {
+        if (!isConnected.value) {
+        console.warn(`⚠️ Not connected: cannot subscribe to ${destination}`)
+        return null
+        }
+        return stompClient.subscribe(destination, callback)
+    }
+
     const disconnect = () => {
-        if (stompClient) {
+        if (stompClient.active) {
             stompClient.deactivate();
             isConnected.value = false;
         }
@@ -77,20 +69,16 @@ export function useWebSocket() {
         }
     };
 
-    onMounted(() => {
-        connect();
-    });
+    onMounted(() => connect())
 
-    onUnmounted(() => {
-        disconnect();
-    });
+    onUnmounted(() => disconnect())
 
     return {
         isConnected,
         messages,
         error,
-        currentWord,
         stompClient,
+        subscribe,
         connect,
         disconnect,
         sendMessage
