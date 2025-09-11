@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
+import { useWebSocket } from '../service/useWebSocket'
 
-interface GameCell {
-  letter: string
-  status: 'correct' | 'present' | 'absent' | 'empty' | 'pending'
-}
-
-const { lastResponse, isConnected, subscribeToGuess, submitGuess } = useGuess()
+const { lastResponse, startListening, stopListening, submitGuess } = useGuess()
+const { isConnected } = useWebSocket()
 
 // Game State
 const maxAttempts = ref(6)
@@ -17,6 +14,11 @@ const gameWon = ref(false)
 const isSubmitting = ref(false)
 const gameGrid = ref<GameCell[][]>([])
 const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({})
+
+interface GameCell {
+  letter: string
+  status: 'correct' | 'present' | 'absent' | 'empty' | 'pending'
+}
 
 // Keyboard Layout
 const keyboardRows = [
@@ -171,11 +173,12 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 onMounted(() => {
   initializeGrid()
-  subscribeToGuess()
+  startListening()
   window.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
+  stopListening()
   window.removeEventListener('keydown', handleKeyDown)
 })
 

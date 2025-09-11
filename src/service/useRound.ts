@@ -1,4 +1,5 @@
 import { ref, watch } from 'vue'
+import type { WatchStopHandle } from 'vue'
 import { useWebSocket } from './useWebSocket'
 import type { IMessage } from '@stomp/stompjs'
 import { WS_SUBSCRIPTIONS } from '../config/websocket.config';
@@ -15,24 +16,19 @@ export interface RoundEnded {
 export type RoundResponse = RoundStarted | RoundEnded;
 
 export function useRound() {
-    const { subscribe, isConnected } = useWebSocket()
+    const { subscribe, unsubscribe, isConnected } = useWebSocket()
 
     const lastRoundMessage = ref<RoundResponse | null>(null)
+    let stopWatch: WatchStopHandle | null = null
 
-    const subscribeToRound = () => {
-        console.log('subscribeToRound wurde aufgerufen');
+    const startListening = () => {
+        if (stopWatch) return
 
-        const destination = WS_SUBSCRIPTIONS.ROUND
-
-        watch(isConnected, (connected) => {
+        stopWatch = watch(isConnected, (connected) => {
             if (connected) {
-                subscribe(destination, (message: IMessage) => {
+                subscribe(WS_SUBSCRIPTIONS.ROUND, (message: IMessage) => {
                     try {
-                        const payload = typeof message.body === 'string'
-                        ? JSON.parse(message.body)
-                        : message.body
-                        
-                        const round: RoundResponse = JSON.parse(payload.body)
+                        const round: RoundResponse = JSON.parse(message.body)
 
                         lastRoundMessage.value = round
 
@@ -49,8 +45,17 @@ export function useRound() {
         }, { immediate: true })
     }
 
+    const stopListening = () => {
+        unsubscribe(WS_SUBSCRIPTIONS.ROUND)
+        if (stopWatch) {
+            stopWatch()
+            stopWatch = null
+        }
+    }
+
     return {
         lastRoundMessage,
-        subscribeToRound
+        startListening,
+        stopListening
     }
 }

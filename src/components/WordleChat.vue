@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useChat } from '../service/useChat'
 
 defineProps<{
   isVisible: boolean
 }>()
 
-const { chatMessages } = useChat()
+const { chatMessages, startListening, stopListening } = useChat()
 const chatContainer = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  startListening()
+})
+
+onUnmounted(() => {
+  stopListening()
+})
 
 watch(chatMessages, async () => {
   await nextTick()

@@ -1,51 +1,57 @@
 import { ref, watch } from 'vue'
+import type { WatchStopHandle } from 'vue'
 import { useWebSocket } from './useWebSocket'
 import type { IMessage } from '@stomp/stompjs'
-import { WS_SUBSCRIPTIONS } from '../config/websocket.config';
+import { WS_SUBSCRIPTIONS } from '../config/websocket.config'
 
 export interface ChatResponse {
-    username: string;
-    word: string;
+  username: string
+  word: string
 }
 
-const chatMessages = ref<ChatResponse[]>([]);
-const isSubscribed = ref(false);
+const chatMessages = ref<ChatResponse[]>([])
 
 export function useChat() {
-    const { subscribe, isConnected } = useWebSocket()
+  const { subscribe, unsubscribe, isConnected } = useWebSocket()
 
-    const subscribeToChat = () => {
-        if (isSubscribed.value) return;
+  let stopWatch: WatchStopHandle | null = null
 
-        const destination = WS_SUBSCRIPTIONS.CHAT;
+  const startListening = () => {
+    if (stopWatch) return
 
-        watch(isConnected, (connected) => {
-            if (connected && !isSubscribed.value) {
-                console.log('Verbindung hergestellt, abonniere Chat...');
-                isSubscribed.value = true;
-                subscribe(destination, (message: IMessage) => {
-                    try {
-                        const payload = typeof message.body === 'string'
-                        ? JSON.parse(message.body)
-                        : message.body
-                        
-                        const chat: ChatResponse = payload.body
+    stopWatch = watch(
+      isConnected,
+      (connected) => {
+        if (connected) {
+          subscribe(WS_SUBSCRIPTIONS.CHAT, (message: IMessage) => {
+            try {
+              const chat: ChatResponse = JSON.parse(message.body)
+              chatMessages.value.push(chat)
 
-                        chatMessages.value.push(chat);
-
-                        if (chatMessages.value.length > 50) {
-                            chatMessages.value.shift();
-                        }
-                    } catch (e) {
-                        console.error('Fehler beim Parsen der Chatnachricht:', e)
-                    }
-                })
+              if (chatMessages.value.length > 50) {
+                chatMessages.value.shift()
+              }
+            } catch (e) {
+              console.error('Error parsing chat message:', e)
             }
-        }, { immediate: true })
-    }
+          })
+        }
+      },
+      { immediate: true }
+    )
+  }
 
-    return {
-        chatMessages,
-        subscribeToChat
+  const stopListening = () => {
+    unsubscribe(WS_SUBSCRIPTIONS.CHAT)
+    if (stopWatch) {
+      stopWatch()
+      stopWatch = null
     }
+  }
+
+  return {
+    chatMessages,
+    startListening,
+    stopListening
+  }
 }

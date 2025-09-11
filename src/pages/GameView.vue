@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { onMounted, watch, ref } from 'vue'
+import { onMounted, onUnmounted, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import WordleGame from '../components/WordleGame.vue'
 import WordleChat from '../components/WordleChat.vue'
-import { useChat } from '../service/useChat'
 import { useRound } from '../service/useRound'
-import { MessageSquare, ArrowRight, MessageCircle, MessageCircleOff } from 'lucide-vue-next';
+import { MessageCircle, MessageCircleOff } from 'lucide-vue-next';
 
 const router = useRouter()
 
-const { subscribeToChat } = useChat()
-const { subscribeToRound, lastRoundMessage } = useRound()
+const { startListening, stopListening, lastRoundMessage } = useRound()
 
 const isChatVisible = ref(true)
 const toggleChat = () => (isChatVisible.value = !isChatVisible.value)
@@ -33,11 +31,14 @@ onMounted(() => {
   const token = sessionStorage.getItem('auth_token')
   if (token) {
     console.log('true') // Todo
-    subscribeToChat()
-    subscribeToRound()
+    startListening()
   } else {
     router.push('/hub')
   }
+})
+
+onUnmounted(() => {
+  stopListening()
 })
 
 watch(lastRoundMessage, (msg) => {
@@ -131,4 +132,4 @@ watch(lastRoundMessage, (msg) => {
   background-color: #d1d5db;
   transform: scale(1.1);
 }
-</style>  
+</style>
