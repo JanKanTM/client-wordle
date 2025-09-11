@@ -1,5 +1,5 @@
-// Basis-URL deiner API
+// Base-URL
 export const API_URL = "http://localhost:8080/api";
 
-// Projekt version
-export const _VERSION = "20250904"
+// Project version
+export const _VERSION = "20250911"

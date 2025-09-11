@@ -2,14 +2,20 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Client } from '@stomp/stompjs'
 import type { IMessage, StompSubscription } from '@stomp/stompjs'
 import { WS_URL } from '../config/websocket.config'
+import useAuth from './useAuth'
+
+
 
 export function useWebSocket() {
     const isConnected = ref(false)
     const messages = ref<any[]>([])
     const error = ref<string | null>(null)
 
+    const { currentUser } = useAuth()
+
     const stompClient = new Client({
-        brokerURL: WS_URL,
+        brokerURL: WS_URL+`?userId=${currentUser.value?._id}`,
+        //brokerURL: WS_URL+'?userId=b3791a07-6ca2-49ab-ae70-c8ab6531e040',
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000

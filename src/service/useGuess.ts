@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue'
 import type { IMessage } from '@stomp/stompjs'
 import { useWebSocket } from './useWebSocket'
-import { STOMP_ENDPOINTS } from '../config/websocket.config'
+import { STOMP_ENDPOINTS, WS_SUBSCRIPTIONS } from '../config/websocket.config'
 import useAuth from '../service/useAuth'
 
 export interface GuessRequest {
@@ -29,15 +29,13 @@ export function useGuess() {
 
     const subscribeToGuess = () => {
         console.log('subscribeToGuess wurde aufgerufen');
-        /*
+        
         if (currentUser.value?._id == null) {
             console.error('User not available or has no ID, cannot subscribe to guess results.');
             return;
         }
-        */
-
-        //const destination = `/user/${currentUser.value._id}/topic/guess-result`;
-        const destination = `/user/d757f2f6-8c1e-40e0-81ea-938773611087/topic/guess-result`;
+        
+        const destination = WS_SUBSCRIPTIONS.GUESS;
 
         watch(isConnected, (connected) => {
             if (connected) {

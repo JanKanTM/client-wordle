@@ -8,29 +8,34 @@ export interface ChatResponse {
     word: string;
 }
 
+const chatMessages = ref<ChatResponse[]>([]);
+const isSubscribed = ref(false);
+
 export function useChat() {
     const { subscribe, isConnected } = useWebSocket()
 
-    const lastChatMessage = ref<ChatResponse | null>(null)
-
     const subscribeToChat = () => {
-        console.log('subscribeToChat wurde aufgerufen');
+        if (isSubscribed.value) return;
 
-        const destination = `${WS_SUBSCRIPTIONS.CHAT}`;
+        const destination = WS_SUBSCRIPTIONS.CHAT;
 
         watch(isConnected, (connected) => {
-            if (connected) {
+            if (connected && !isSubscribed.value) {
+                console.log('Verbindung hergestellt, abonniere Chat...');
+                isSubscribed.value = true;
                 subscribe(destination, (message: IMessage) => {
                     try {
                         const payload = typeof message.body === 'string'
                         ? JSON.parse(message.body)
                         : message.body
                         
-                        const chat:ChatResponse = payload.body
+                        const chat: ChatResponse = payload.body
 
-                        lastChatMessage.value = chat
+                        chatMessages.value.push(chat);
 
-                        //console.log(`${chat.username}: ${chat.word}`)
+                        if (chatMessages.value.length > 50) {
+                            chatMessages.value.shift();
+                        }
                     } catch (e) {
                         console.error('Fehler beim Parsen der Chatnachricht:', e)
                     }
@@ -40,7 +45,7 @@ export function useChat() {
     }
 
     return {
-        lastChatMessage,
+        chatMessages,
         subscribeToChat
     }
 }

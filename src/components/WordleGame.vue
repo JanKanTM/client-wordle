@@ -1,58 +1,3 @@
-<template>
-  <div class="wordle-game">
-    <header class="game-header">
-      <h1>Multiplayer Wordle</h1>
-      <div class="connection-status">
-        <span :class="{ 'connected': isConnected, 'disconnected': !isConnected }">
-          {{ isConnected ? '🟢 Verbunden' : '🔴 Nicht verbunden' }}
-        </span>
-      </div>
-    </header>
-
-    <main class="game-main">
-      <!-- Spielfeld -->
-      <div class="game-grid">
-        <div 
-          v-for="(row, rowIndex) in gameGrid" 
-          :key="rowIndex"
-          class="grid-row"
-        >
-          <div
-            v-for="(cell, cellIndex) in row"
-            :key="cellIndex"
-            class="grid-cell"
-            :class="getCellClass(rowIndex, cellIndex)"
-          >
-            {{ cell.letter }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Spielstatus -->
-      <div class="game-status">
-        <p>Versuch: {{ currentAttempt + 1 }} / {{ maxAttempts }}</p>
-        <p v-if="gameWon" class="win-message">Gewonnen! Das Wort war richtig!</p>
-        <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">Verloren! Keine Versuche mehr übrig.</p>
-      </div>
-
-      <!-- Alphabet -->
-      <div class="alphabet">
-        <div class="alphabet-row" v-for="(row, index) in keyboardRows" :key="index">
-          <button
-            v-for="key in row"
-            :key="key"
-            :class="getDynamicKeyClass(key)"
-            @click="handleKeyPress(key)"
-            :disabled="isKeyDisabled(key)"
-          >
-            {{ key === 'ENTER' ? '↵' : (key === 'BACKSPACE' ? '⌫' : key) }}
-          </button>
-        </div>
-      </div>
-    </main>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
@@ -246,6 +191,60 @@ watch(currentGuess, () => {
   updateCurrentRow()
 })
 </script>
+
+<template>
+  <div class="wordle-game">
+    <header class="game-header">
+      <div class="connection-status">
+        <span :class="{ 'connected': isConnected, 'disconnected': !isConnected }">
+          {{ isConnected ? 'Verbunden' : 'Nicht verbunden' }}
+        </span>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <!-- Spielfeld -->
+      <div class="game-grid">
+        <div 
+          v-for="(row, rowIndex) in gameGrid" 
+          :key="rowIndex"
+          class="grid-row"
+        >
+          <div
+            v-for="(cell, cellIndex) in row"
+            :key="cellIndex"
+            class="grid-cell"
+            :class="getCellClass(rowIndex, cellIndex)"
+          >
+            {{ cell.letter }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Spielstatus -->
+      <div class="game-status">
+        <p>Versuch: {{ currentAttempt + 1 }} / {{ maxAttempts }}</p>
+        <p v-if="gameWon" class="win-message">Gewonnen! Das Wort war richtig!</p>
+        <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">Verloren! Keine Versuche mehr übrig.</p>
+      </div>
+
+      <!-- Alphabet -->
+      <div class="alphabet">
+        <div class="alphabet-row" v-for="(row, index) in keyboardRows" :key="index">
+          <button
+            v-for="key in row"
+            :key="key"
+            :class="getDynamicKeyClass(key)"
+            @click="handleKeyPress(key)"
+            :disabled="isKeyDisabled(key)"
+          >
+            {{ key === 'ENTER' ? '↵' : (key === 'BACKSPACE' ? '⌫' : key) }}
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
 
 <style scoped>
 .wordle-game {
