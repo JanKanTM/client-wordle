@@ -31,8 +31,8 @@
       <!-- Spielstatus -->
       <div class="game-status">
         <p>Versuch: {{ currentAttempt + 1 }} / {{ maxAttempts }}</p>
-        <p v-if="gameWon" class="win-message">🎉 Gewonnen! Das Wort war richtig!</p>
-        <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">😞 Verloren! Keine Versuche mehr übrig.</p>
+        <p v-if="gameWon" class="win-message">Gewonnen! Das Wort war richtig!</p>
+        <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">Verloren! Keine Versuche mehr übrig.</p>
       </div>
 
       <!-- Alphabet -->

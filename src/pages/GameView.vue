@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import WordleGame from '../components/WordleGame.vue'
+import { useChat } from '../service/useChat'
+import { useRound } from '../service/useRound'
 
 const router = useRouter()
+
+const { subscribeToChat, lastChatMessage } = useChat()
+const { subscribeToRound, lastRoundMessage } = useRound()
 
 onMounted(() => {
   /*
@@ -23,8 +28,22 @@ onMounted(() => {
   const token = sessionStorage.getItem('auth_token')
   if (token) {
     console.log('true') // Todo
+    subscribeToChat()
+    subscribeToRound()
   } else {
     router.push('/hub')
+  }
+})
+
+watch(lastChatMessage, (msg) => {
+  if (msg) {
+        console.log(`${msg.username}: ${msg.word}`)
+    }
+})
+
+watch(lastRoundMessage, (msg) => {
+  if (msg) {
+    console.log(`${msg.round}${'word' in msg ? `: ${msg.word}` : ''}`)
   }
 })
 </script>

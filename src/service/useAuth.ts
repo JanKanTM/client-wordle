@@ -34,6 +34,7 @@ const login = async (credentials: LoginRequest) => {
     sessionStorage.setItem("auth_token", result.token);
 
     stateMessage.value = 'Login erfolgreich!'
+
     return result
   } catch (error) {
     stateMessage.value = 'Login fehlgeschlagen!'
