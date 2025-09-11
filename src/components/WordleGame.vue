@@ -1,387 +1,440 @@
-<script setup lang="ts">
-import { ArrowLeft, TimerIcon } from 'lucide-vue-next'
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useWebSocket } from '../service/useWebSocket'
-
-const { currentWord } = useWebSocket()
-
-const gameTimer = 60
-
-const WORD_LENGTH = 5
-const MAX_GUESSES = 6
-
-// Das Zielwort kommt vom WebSocket
-const targetWord = computed(() => currentWord.value.toUpperCase())
-
-const guesses = ref<string[]>(Array(MAX_GUESSES).fill(''))
-const currentRow = ref(0)
-const currentGuess = ref('')
-const gameStatus = ref<'playing' | 'won' | 'lost'>('playing')
-const message = ref('')
-const letterStates = ref<Record<string, 'correct' | 'present' | 'absent'>>({})
-
-const router = useRouter()
-
-const keyboardRows = [
-  ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['Enter', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'Backspace']
-]
-
-const board = computed(() => {
-  const boardState: { letter: string; state: string }[][] = []
-  for (let i = 0; i < MAX_GUESSES; i++) {
-    const row: { letter: string; state: string }[] = []
-    const guess = guesses.value[i]
-    const isCurrentRow = i === currentRow.value
-
-    for (let j = 0; j < WORD_LENGTH; j++) {
-      const letter = isCurrentRow ? currentGuess.value[j] : guess[j]
-      let state = ''
-
-      if (letter) {
-        if (isCurrentRow) {
-          state = 'active'
-        } else {
-          const targetLetter = targetWord.value[j]
-          if (letter === targetLetter) {
-            state = 'correct'
-          } else if (targetWord.value.includes(letter)) {
-            state = 'present'
-          } else {
-            state = 'absent'
-          }
-        }
-      }
-      row.push({ letter: letter || '', state })
-    }
-    boardState.push(row)
-  }
-  return boardState
-})
-
-const startNewGame = () => {
-  // Das Zielwort wird jetzt vom WebSocket gesteuert
-  guesses.value = Array(MAX_GUESSES).fill('')
-  currentRow.value = 0
-  currentGuess.value = ''
-  gameStatus.value = 'playing'
-  message.value = ''
-  letterStates.value = {}
-}
-
-const submitGuess = () => {
-  if (gameStatus.value !== 'playing') return
-
-  if (currentGuess.value.length !== WORD_LENGTH) {
-    message.value = 'Nicht genügend Buchstaben'
-    setTimeout(() => (message.value = ''), 2000)
-    return
-  }
-
-  // Update letter states for the keyboard
-  for (let i = 0; i < currentGuess.value.length; i++) {
-    const letter = currentGuess.value[i]
-    if (targetWord.value[i] === letter) {
-      letterStates.value[letter] = 'correct'
-    } else if (targetWord.value.includes(letter)) {
-      if (letterStates.value[letter] !== 'correct') {
-        letterStates.value[letter] = 'present'
-      }
-    } else {
-      letterStates.value[letter] = 'absent'
-    }
-  }
-
-  guesses.value[currentRow.value] = currentGuess.value
-
-  if (currentGuess.value === targetWord.value) {
-    gameStatus.value = 'won'
-    message.value = 'Gewonnen! Super!'
-  } else if (currentRow.value === MAX_GUESSES - 1) {
-    gameStatus.value = 'lost'
-    message.value = `Verloren! Das Wort war: ${targetWord.value}`
-  } else {
-    currentRow.value++
-    currentGuess.value = ''
-  }
-}
-
-const handleKey = (key: string) => {
-  if (gameStatus.value !== 'playing') return
-
-  if (key === 'Enter') {
-    submitGuess()
-  } else if (key === 'Backspace') {
-    currentGuess.value = currentGuess.value.slice(0, -1)
-  } else if (currentGuess.value.length < WORD_LENGTH && /^[A-ZÄÖÜ]$/i.test(key)) {
-    currentGuess.value += key.toUpperCase()
-  }
-}
-
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    handleKey('Enter')
-  } else if (e.key === 'Backspace') {
-    handleKey('Backspace')
-  } else if (e.key.length === 1 && e.key.match(/[a-zA-ZäöüÄÖÜ]/i)) {
-    handleKey(e.key)
-  }
-}
-
-watch(currentWord, (newWord, oldWord) => {
-  if (newWord && oldWord && newWord.toUpperCase() !== oldWord.toUpperCase()) {
-    message.value = 'Ein neues Wort ist da! Das Spiel wird zurückgesetzt.'
-    setTimeout(() => (message.value = ''), 3000)
-    startNewGame()
-  }
-})
-
-onMounted(() => {
-  startNewGame()
-  window.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown)
-})
-
-//route
-const routeToHub = () => {
-  router.push('/hub');
-}
-</script>
-
 <template>
-  <div class="wordle-container">
-    <div class="top-container">
-      <button class="top-container-action" @click="routeToHub">
-        <ArrowLeft :size="18" />
-        Verlassen
-      </button>
-
-      <h1 class="game-title">Wortel</h1>
-
-      <div class="timer-container">
-        <TimerIcon :size="18" />
-        <p>{{ gameTimer }}</p>
+  <div class="wordle-game">
+    <header class="game-header">
+      <h1>Multiplayer Wordle</h1>
+      <div class="connection-status">
+        <span :class="{ 'connected': isConnected, 'disconnected': !isConnected }">
+          {{ isConnected ? '🟢 Verbunden' : '🔴 Nicht verbunden' }}
+        </span>
       </div>
-    </div> 
-    
-    <div id="game-board">
-      <div v-for="(row, rowIndex) in board" :key="rowIndex" class="board-row">
-        <div
-          v-for="(tile, tileIndex) in row"
-          :key="tileIndex"
-          class="tile"
-          :class="[tile.state, { filled: tile.letter }]"
+    </header>
+
+    <main class="game-main">
+      <!-- Spielfeld -->
+      <div class="game-grid">
+        <div 
+          v-for="(row, rowIndex) in gameGrid" 
+          :key="rowIndex"
+          class="grid-row"
         >
-          {{ tile.letter }}
+          <div
+            v-for="(cell, cellIndex) in row"
+            :key="cellIndex"
+            class="grid-cell"
+            :class="getCellClass(rowIndex, cellIndex)"
+          >
+            {{ cell.letter }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="message" class="message">
-      {{ message }}
-      <button v-if="gameStatus !== 'playing'" @click="startNewGame" class="new-game-button">Neues Spiel</button>
-    </div>
-
-    <div id="keyboard">
-      <div v-for="(row, rowIndex) in keyboardRows" :key="rowIndex" class="keyboard-row">
-        <button
-          v-for="key in row"
-          :key="key"
-          :class="['key', letterStates[key.toUpperCase()], { large: key.length > 1 }]"
-          @click="handleKey(key)"
-        >
-          {{ key === 'Backspace' ? '⌫' : key }}
-        </button>
+      <!-- Spielstatus -->
+      <div class="game-status">
+        <p>Versuch: {{ currentAttempt + 1 }} / {{ maxAttempts }}</p>
+        <p v-if="gameWon" class="win-message">🎉 Gewonnen! Das Wort war richtig!</p>
+        <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">😞 Verloren! Keine Versuche mehr übrig.</p>
       </div>
-    </div>
+
+      <!-- Alphabet -->
+      <div class="alphabet">
+        <div class="alphabet-row" v-for="(row, index) in keyboardRows" :key="index">
+          <button
+            v-for="key in row"
+            :key="key"
+            :class="getDynamicKeyClass(key)"
+            @click="handleKeyPress(key)"
+            :disabled="isKeyDisabled(key)"
+          >
+            {{ key === 'ENTER' ? '↵' : (key === 'BACKSPACE' ? '⌫' : key) }}
+          </button>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
+
+interface GameCell {
+  letter: string
+  status: 'correct' | 'present' | 'absent' | 'empty' | 'pending'
+}
+
+const { lastResponse, isConnected, subscribeToGuess, submitGuess } = useGuess()
+
+// Game State
+const maxAttempts = ref(6)
+const currentAttempt = ref(0)
+const currentGuess = ref('')
+const gameWon = ref(false)
+const isSubmitting = ref(false)
+const gameGrid = ref<GameCell[][]>([])
+const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({})
+
+// Keyboard Layout
+const keyboardRows = [
+  ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
+  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+  ['ENTER', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+]
+
+// Computed Properties
+const canSubmit = computed(() => {
+  return currentGuess.value.length === 5 && 
+         isConnected.value && 
+         !gameWon.value && 
+         currentAttempt.value < maxAttempts.value
+})
+
+// Initialize Game Grid
+const initializeGrid = () => {
+  gameGrid.value = Array.from({ length: maxAttempts.value }, () => 
+    Array.from({ length: 5 }, () => ({ letter: '', status: 'empty' as const }))
+  )
+}
+
+// Handle Key Press from virtual or physical keyboard
+const handleKeyPress = (key: string) => {
+  if (gameWon.value || currentAttempt.value >= maxAttempts.value || isSubmitting.value) return
+
+  if (key === 'ENTER') {
+    submitCurrentGuess()
+  } else if (key === 'BACKSPACE') {
+    deleteLetter()
+  } else if (key.length === 1 && key.match(/[A-Z]/)) {
+    addLetterToGuess(key)
+  }
+}
+
+// Add Letter to Current Guess
+const addLetterToGuess = (letter: string) => {
+  if (currentGuess.value.length < 5) {
+    currentGuess.value += letter
+  }
+}
+
+// Delete Letter
+const deleteLetter = () => {
+  if (currentGuess.value.length > 0) {
+    currentGuess.value = currentGuess.value.slice(0, -1)
+  }
+}
+
+// Update Current Row Display
+const updateCurrentRow = () => {
+  if (currentAttempt.value < maxAttempts.value) {
+    const row = gameGrid.value[currentAttempt.value]
+    for (let i = 0; i < 5; i++) {
+      if (i < currentGuess.value.length) {
+        row[i].letter = currentGuess.value[i]
+        row[i].status = 'pending'
+      } else {
+        row[i].letter = ''
+        row[i].status = 'empty'
+      }
+    }
+  }
+}
+
+// Submit Current Guess
+const submitCurrentGuess = () => {
+  if (!canSubmit.value || isSubmitting.value) return
+
+  isSubmitting.value = true
+  console.log(`Submitting guess: ${currentGuess.value}, attempt: ${currentAttempt.value + 1}`)
+  submitGuess(currentGuess.value, currentAttempt.value + 1)
+}
+
+// Process Guess Response
+const processGuessResponse = (response: GuessResponse) => {
+  console.log('Processing guess response:', response)
+  
+  if (currentAttempt.value < maxAttempts.value) {
+    const row = gameGrid.value[currentAttempt.value]
+    
+    response.result.forEach((result: GuessResult, index: number) => {
+      row[index].letter = result.letter
+      row[index].status = result.status
+      
+      const currentState = letterStates.value[result.letter]
+      if (!currentState || 
+          (currentState === 'absent' && result.status !== 'absent') ||
+          (currentState === 'present' && result.status === 'correct')) {
+        letterStates.value[result.letter] = result.status
+      }
+    })
+    
+    if (response.isWin) {
+      gameWon.value = true
+      console.log('Game won!')
+    }
+    
+    currentAttempt.value++
+    currentGuess.value = ''
+    isSubmitting.value = false
+  }
+}
+
+// --- Styling and Class Helpers ---
+
+const getCellClass = (rowIndex: number, cellIndex: number) => {
+  const cell = gameGrid.value[rowIndex]?.[cellIndex]
+  return cell ? `grid-cell cell-${cell.status}` : 'grid-cell'
+}
+
+const getDynamicKeyClass = (key: string) => {
+  if (key === 'ENTER' || key === 'BACKSPACE') {
+    return 'control-key'
+  }
+  const state = letterStates.value[key]
+  return state ? `alphabet-key key-${state}` : 'alphabet-key'
+}
+
+const isKeyDisabled = (key: string) => {
+  if (isSubmitting.value) {
+    return true
+  }
+  if (gameWon.value || currentAttempt.value >= maxAttempts.value) {
+    return true
+  }
+  if (key === 'ENTER') {
+    return !canSubmit.value
+  }
+  if (key === 'BACKSPACE') {
+    return currentGuess.value.length === 0
+  }
+  return false
+}
+
+// --- Lifecycle and Event Listeners ---
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  const key = event.key.toUpperCase()
+  if (key === 'ENTER') {
+    event.preventDefault()
+    handleKeyPress('ENTER')
+  } else if (key === 'BACKSPACE') {
+    event.preventDefault()
+    handleKeyPress('BACKSPACE')
+  } else if (key.length === 1 && key >= 'A' && key <= 'Z') {
+    event.preventDefault()
+    handleKeyPress(key)
+  }
+}
+
+onMounted(() => {
+  initializeGrid()
+  subscribeToGuess()
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
+
+// Watch for guess responses
+watch(lastResponse, (newResponse) => {
+  if (newResponse) {
+    processGuessResponse(newResponse)
+  }
+})
+
+// Watch current guess for live update
+watch(currentGuess, () => {
+  updateCurrentRow()
+})
+</script>
+
 <style scoped>
-.wordle-container {
+.wordle-game {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.game-header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.connection-status {
+  font-size: 14px;
+}
+
+.connected {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.disconnected {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.game-grid {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  box-sizing: border-box;
-  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-  width: 100%;
-  height: 100vh;
-  justify-content: space-between;
-}
-
-.top-container {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  width: 80%;
-  margin: 0 auto;
-}
-
-.top-container > button {
-  justify-self: start;
-}
-
-.game-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.1em;
-}
-
-.timer-container {
-  justify-self: end;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 0.875rem;
-  font-weight: bold;
-  color: white;
-  background-color: #3a3a3c;
-  border: 0;
-  border-radius: 8px;
-  font-family: inherit;
-}
-.timer-container p {
-  font-size: 16px;
-}
-
-.top-container-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 0.875rem;
-  font-weight: bold;
-  color: white;
-  background-color: #3a3a3c;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-family: inherit;
-}
-
-.top-container-action:hover {
-  transform: scale(1.025);
-}
-
-#game-board {
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
   gap: 5px;
-  width: 100%;
-  max-width: 350px;
-  height: 420px;
-  margin: 20px 0;
+  margin-bottom: 30px;
+  justify-content: center;
+  align-items: center;
 }
 
-.board-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+.grid-row {
+  display: flex;
   gap: 5px;
 }
 
-.tile {
-  width: 100%;
-  height: 100%;
-  display: inline-flex;
-  justify-content: center;
+.grid-cell {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #d1d5db;
+  display: flex;
   align-items: center;
-  font-size: 2rem;
+  justify-content: center;
+  font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
-  border: 2px solid #d3d6da;
-  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-.tile.filled {
-  border-color: #878a8c;
+.cell-empty {
+  background-color: #ffffff;
+  border-color: #d1d5db;
 }
 
-.tile.active {
-  border-color: #565758;
+.cell-pending {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
 }
 
-.tile.correct, .key.correct {
-  background-color: #6aaa64;
-  border-color: #6aaa64;
+.cell-correct {
+  background-color: #22c55e;
   color: white;
+  border-color: #16a34a;
 }
 
-.tile.present, .key.present {
-  background-color: #c9b458;
-  border-color: #c9b458;
+.cell-present {
+  background-color: #eab308;
   color: white;
+  border-color: #ca8a04;
 }
 
-.tile.absent, .key.absent {
-  background-color: #787c7e;
-  border-color: #787c7e;
+.cell-absent {
+  background-color: #6b7280;
   color: white;
+  border-color: #4b5563;
 }
 
-.message {
-  padding: 16px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+.game-status {
   text-align: center;
+  margin-bottom: 30px;
 }
 
-.message .new-game-button {
-  margin-left: 15px;
-  padding: 8px 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  background-color: #6aaa64;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
-
-#keyboard {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.keyboard-row {
-  display: flex;
-  justify-content: center;
-  margin: 0 auto 8px;
-  gap: 6px;
-}
-
-.key {
-  font-family: inherit;
+.win-message {
+  color: #22c55e;
   font-weight: bold;
-  border: 0;
-  padding: 0;
-  height: 58px;
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-  background-color: #d3d6da;
-  color: #1a1a1b;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-transform: uppercase;
+  font-size: 18px;
 }
 
-.key.large {
-  flex: 1.5;
+.lose-message {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.alphabet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.alphabet-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.alphabet-key, .control-key {
+  height: 45px;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alphabet-key {
+  width: 40px;
+}
+
+.control-key {
+  width: 60px;
+  background-color: #d1d5db;
+}
+
+.alphabet-key:hover:not(:disabled), .control-key:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.alphabet-key:disabled, .control-key:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.key-correct {
+  background-color: #22c55e !important;
+  color: white;
+  border-color: #16a34a;
+}
+
+.key-present {
+  background-color: #eab308 !important;
+  color: white;
+  border-color: #ca8a04;
+}
+
+.key-absent {
+  background-color: #6b7280 !important;
+  color: white;
+  border-color: #4b5563;
+}
+
+@media (max-width: 640px) {
+  .wordle-game {
+    padding: 10px;
+  }
+  
+  .grid-cell {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .alphabet-key {
+    width: 30px;
+    height: 40px;
+    font-size: 12px;
+  }
+
+  .control-key {
+    width: 45px;
+    font-size: 12px;
+  }
 }
 </style>

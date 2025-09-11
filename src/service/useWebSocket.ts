@@ -45,7 +45,7 @@ export function useWebSocket() {
         callback: (msg: IMessage) => void
     ): StompSubscription | null => {
         if (!isConnected.value) {
-        console.warn(`⚠️ Not connected: cannot subscribe to ${destination}`)
+        console.warn(`Not connected: cannot subscribe to ${destination}`)
         return null
         }
         return stompClient.subscribe(destination, callback)
