@@ -21,7 +21,7 @@ export function useRound() {
     const lastRoundMessage = ref<RoundResponse | null>(null)
     let stopWatch: WatchStopHandle | null = null
 
-    const startListening = () => {
+    const startRoundListening = () => {
         if (stopWatch) return
 
         stopWatch = watch(isConnected, (connected) => {
@@ -45,7 +45,7 @@ export function useRound() {
         }, { immediate: true })
     }
 
-    const stopListening = () => {
+    const stopRoundListening = () => {
         unsubscribe(WS_SUBSCRIPTIONS.ROUND)
         if (stopWatch) {
             stopWatch()
@@ -55,7 +55,7 @@ export function useRound() {
 
     return {
         lastRoundMessage,
-        startListening,
-        stopListening
+        startRoundListening,
+        stopRoundListening
     }
 }

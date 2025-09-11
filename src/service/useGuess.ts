@@ -29,7 +29,7 @@ export function useGuess() {
   const lastResponse = ref<GuessResponse | null>(null)
   let stopWatch: WatchStopHandle | null = null
 
-  const startListening = () => {
+  const startGuessListening = () => {
     if (stopWatch) return
 
     stopWatch = watch(
@@ -51,7 +51,7 @@ export function useGuess() {
     )
   }
 
-  const stopListening = () => {
+  const stopGuessListening = () => {
     unsubscribe(WS_SUBSCRIPTIONS.GUESS)
     if (stopWatch) {
       stopWatch()
@@ -78,5 +78,5 @@ export function useGuess() {
     sendMessage(STOMP_ENDPOINTS.GUESS, request)
   }
 
-  return { lastResponse, startListening, stopListening, submitGuess }
+  return { lastResponse, startGuessListening, stopGuessListening, submitGuess }
 }

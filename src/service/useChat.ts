@@ -16,7 +16,7 @@ export function useChat() {
 
   let stopWatch: WatchStopHandle | null = null
 
-  const startListening = () => {
+  const startChatListening = () => {
     if (stopWatch) return
 
     stopWatch = watch(
@@ -41,7 +41,7 @@ export function useChat() {
     )
   }
 
-  const stopListening = () => {
+  const stopChatListening = () => {
     unsubscribe(WS_SUBSCRIPTIONS.CHAT)
     if (stopWatch) {
       stopWatch()
@@ -51,7 +51,7 @@ export function useChat() {
 
   return {
     chatMessages,
-    startListening,
-    stopListening
+    startChatListening,
+    stopChatListening
   }
 }

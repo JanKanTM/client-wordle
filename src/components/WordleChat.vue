@@ -6,15 +6,15 @@ defineProps<{
   isVisible: boolean
 }>()
 
-const { chatMessages, startListening, stopListening } = useChat()
+const { chatMessages, startChatListening, stopChatListening } = useChat()
 const chatContainer = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  startListening()
+  startChatListening()
 })
 
 onUnmounted(() => {
-  stopListening()
+  stopChatListening()
 })
 
 watch(chatMessages, async () => {
@@ -74,7 +74,7 @@ watch(chatMessages, async () => {
   margin-bottom: 8px;
   padding: 6px 10px;
   background-color: #ffffff;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #e5e7eb;
   font-size: 0.9rem;
 }

@@ -3,12 +3,13 @@ import { onMounted, onUnmounted, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import WordleGame from '../components/WordleGame.vue'
 import WordleChat from '../components/WordleChat.vue'
+import GameTimer from '../components/GameTimer.vue'
 import { useRound } from '../service/useRound'
 import { MessageCircle, MessageCircleOff } from 'lucide-vue-next';
 
 const router = useRouter()
 
-const { startListening, stopListening, lastRoundMessage } = useRound()
+const { startRoundListening, stopRoundListening, lastRoundMessage } = useRound()
 
 const isChatVisible = ref(true)
 const toggleChat = () => (isChatVisible.value = !isChatVisible.value)
@@ -31,14 +32,14 @@ onMounted(() => {
   const token = sessionStorage.getItem('auth_token')
   if (token) {
     console.log('true') // Todo
-    startListening()
+    startRoundListening()
   } else {
     router.push('/hub')
   }
 })
 
 onUnmounted(() => {
-  stopListening()
+  stopRoundListening()
 })
 
 watch(lastRoundMessage, (msg) => {
@@ -50,6 +51,9 @@ watch(lastRoundMessage, (msg) => {
 
 <template>
   <div class="game-view-container">
+    <div class="timer-container">
+      <GameTimer />
+    </div>
     <!-- Main Game Sidebar -->
     <main class="game-content">
       <WordleGame />
@@ -77,6 +81,14 @@ watch(lastRoundMessage, (msg) => {
   width: 100%;
   padding: 20px;
   position: relative;
+}
+
+.timer-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
 }
 
 .game-content {

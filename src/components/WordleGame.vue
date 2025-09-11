@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
 import { useWebSocket } from '../service/useWebSocket'
 
-const { lastResponse, startListening, stopListening, submitGuess } = useGuess()
+const { lastResponse, startGuessListening, stopGuessListening, submitGuess } = useGuess()
 const { isConnected } = useWebSocket()
 
 // Game State
@@ -173,12 +173,12 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 onMounted(() => {
   initializeGrid()
-  startListening()
+  startGuessListening()
   window.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
-  stopListening()
+  stopGuessListening()
   window.removeEventListener('keydown', handleKeyDown)
 })
 
