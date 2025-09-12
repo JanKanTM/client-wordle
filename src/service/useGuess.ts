@@ -13,7 +13,7 @@ export interface GuessRequest {
 
 export interface GuessResult {
   letter: string
-  status: 'correct' | 'present' | 'absent'
+  status: 'correct' | 'present' | 'absent' | 'invalid'
 }
 
 export interface GuessResponse {

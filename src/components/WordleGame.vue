@@ -21,7 +21,7 @@ const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({}
 
 interface GameCell {
   letter: string
-  status: 'correct' | 'present' | 'absent' | 'empty' | 'pending'
+  status: 'correct' | 'present' | 'absent' | 'empty' | 'pending' | 'invalid'
 }
 
 // Keyboard Layout
@@ -113,27 +113,44 @@ const submitCurrentGuess = () => {
 // Process Guess Response
 const processGuessResponse = (response: GuessResponse) => {
   console.log('Processing guess response:', response)
-  
-  if (currentAttempt.value < maxAttempts.value) {
-    const row = gameGrid.value[currentAttempt.value]
-    
+
+  if (currentAttempt.value >= maxAttempts.value) return
+
+  const row = gameGrid.value[currentAttempt.value]
+  const isInvalid = response.result.some((r) => r.status === 'invalid')
+
+  if (isInvalid) {
+    // Temporarily show invalid state
+    response.result.forEach((result: GuessResult, index: number) => {
+      row[index].status = 'invalid'
+    })
+
+    // After a short delay, reset the row so the user can edit
+    setTimeout(() => {
+      updateCurrentRow()
+      isSubmitting.value = false
+    }, 800)
+  } else {
     response.result.forEach((result: GuessResult, index: number) => {
       row[index].letter = result.letter
       row[index].status = result.status
-      
+
       const currentState = letterStates.value[result.letter]
-      if (!currentState || 
+      if (
+        result.status !== 'invalid' &&
+        (!currentState ||
           (currentState === 'absent' && result.status !== 'absent') ||
-          (currentState === 'present' && result.status === 'correct')) {
+          (currentState === 'present' && result.status === 'correct'))
+      ) {
         letterStates.value[result.letter] = result.status
       }
     })
-    
+
     if (response.isWin) {
       gameWon.value = true
       console.log('Game won!')
     }
-    
+
     currentAttempt.value++
     currentGuess.value = ''
     isSubmitting.value = false
@@ -247,6 +264,11 @@ watch(currentGuess, () => {
 
 <template>
   <div class="wordle-game">
+    <div v-if="isBoardLocked" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Warte auf nächste Runde...</h2>
+      </div>
+    </div>
     <header class="game-header">
       <div class="timer-wrapper">
         <GameTimer />
@@ -399,6 +421,12 @@ watch(currentGuess, () => {
   border-color: #4b5563;
 }
 
+.cell-invalid {
+  background-color: #ef4444;
+  color: white;
+  border-color: #dc2626;
+}
+
 .game-status {
   text-align: center;
   margin-bottom: 30px;
@@ -478,6 +506,27 @@ watch(currentGuess, () => {
   background-color: #6b7280 !important;
   color: white;
   border-color: #4b5563;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-align: center;
 }
 
 @media (max-width: 640px) {

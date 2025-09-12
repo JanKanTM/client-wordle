@@ -1,13 +1,8 @@
-<template>
-  <div class="game-timer">
-    <span>{{ timeLeft }}</span>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRound } from '../service/useRound';
 import type { RoundResponse } from '../service/useRound';
+import { Timer } from 'lucide-vue-next';
 
 const timeLeft = ref(60);
 const isTimerRunning = ref(false);
@@ -61,10 +56,22 @@ onUnmounted(() => {
 });
 </script>
 
+<template>
+  <div class="game-timer">
+    <Timer 
+    :size="24" 
+    />
+    <span>{{ timeLeft }}</span>
+  </div>
+</template>
+
 <style scoped>
 .game-timer {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: bold;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 </style>
