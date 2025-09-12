@@ -11,7 +11,7 @@ const routes : RouteRecordRaw[] = [
     { path: '/hub', component: GameHub },
     { path: '/game', component: GameView },
     { path: '/leaderboard', component: GameLeaderboard},
-    { path: '/settings', component: GameSettings}
+    { path: '/settings', component: GameSettings},
 ];
 
 const router = createRouter({

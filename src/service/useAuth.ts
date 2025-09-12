@@ -1,6 +1,6 @@
 import { ref, computed } from "vue";
-import type { User, LoginRequest, RegisterRequest } from "../api/user";
-import { loginUser, registerUser, getCurrentUser, logoutUser } from "../api/user";
+import type { User, LoginRequest, RegisterRequest, UpdateUsernameRequest, UpdatePasswordRequest } from "../api/user";
+import { loginUser, registerUser, getCurrentUser, logoutUser, updateUsername, updatePassword } from "../api/user";
 
 const currentUser = ref<User | null>(null);
 const isAuthenticated = computed(() => !!currentUser.value)
@@ -87,6 +87,30 @@ const logout = () => {
   }
 }
 
+const updateName = async (userId: string, data: UpdateUsernameRequest) => {
+  try {
+    stateMessage.value = ''
+    const updatedUser = await updateUsername(userId, data)
+    currentUser.value = updatedUser
+    stateMessage.value = 'Benutzername erfolgreich aktualisiert!'
+    return updatedUser
+  } catch (error) {
+    stateMessage.value = 'Fehler beim Aktualisieren des Benutzernamens.'
+  }
+}
+
+const updatePass = async (userId: string, data: UpdatePasswordRequest) => {
+  try {
+    stateMessage.value = ''
+    const updatedUser = await updatePassword(userId, data)
+    currentUser.value = updatedUser
+    stateMessage.value = 'Passwort erfolgreich aktualisiert!'
+    return updatedUser
+  } catch (error) {
+    stateMessage.value = 'Fehler beim Aktualisieren des Passworts.'
+  }
+}
+
 // Initialize user on composable creation
 if (authToken.value && !currentUser.value) {
   loadCurrentUser()
@@ -105,6 +129,8 @@ export default function useAuth() {
     login,
     register,
     loadCurrentUser,
-    logout
+    logout,
+    updateName,
+    updatePass
   }
 }

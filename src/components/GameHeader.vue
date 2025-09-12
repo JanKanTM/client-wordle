@@ -18,7 +18,7 @@ function routeScoreboard() {
 }
 
 function routeSettings() {
-  console.log("settings")
+  router.push('/settings')
 }
 </script>
 

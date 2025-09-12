@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
 import { useWebSocket } from '../service/useWebSocket'
 import { useRound, type RoundResponse } from '../service/useRound'
+import GameTimer from './GameTimer.vue'
 
 const { lastResponse, startGuessListening, stopGuessListening, submitGuess } = useGuess()
 const { isConnected } = useWebSocket()
@@ -247,6 +248,9 @@ watch(currentGuess, () => {
 <template>
   <div class="wordle-game">
     <header class="game-header">
+      <div class="timer-wrapper">
+        <GameTimer />
+      </div>
       <div class="connection-status">
         <span :class="{ 'connected': isConnected, 'disconnected': !isConnected }">
           {{ isConnected ? 'Verbunden' : 'Nicht verbunden' }}
@@ -307,8 +311,18 @@ watch(currentGuess, () => {
 }
 
 .game-header {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 30px;
+  gap: 10px;
+}
+
+.timer-wrapper {
+  background-color: #3a3a3c;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 8px;
 }
 
 .game-header h1 {

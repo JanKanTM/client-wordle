@@ -1,115 +1,72 @@
 <script setup lang="ts">
-import { useWebSocket } from '../service/useWebSocket'
-import { STOMP_ENDPOINTS } from '../config/websocket.config'
+import { ref } from 'vue'
+import useAuth from '../service/useAuth'
 
-const { sendMessage, isConnected, error } = useWebSocket()
+const { currentUser, updateName, updatePass, message } = useAuth()
 
-const sendHello = () => {
-    sendMessage(STOMP_ENDPOINTS.HI, "hallo")
+const newName = ref(currentUser.value?.username || '')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const errMessage = ref('')
+const successMessage = ref('')
+
+const handleUpdateUserData = async () => {
+  errMessage.value = ''
+  successMessage.value = ''
+
+  if (!currentUser.value) {
+    errMessage.value = "Nicht angemeldet."
+    return
+  }
+
+  // Update username if it has changed
+  if (newName.value && newName.value !== currentUser.value.username) {
+    await updateName(currentUser.value._id, { username: newName.value, password: '' }) // Assuming password is not needed or handled differently by backend
+    successMessage.value = message.value
+  }
+
+  // Update password if new password is provided and confirmed
+  if (newPassword.value) {
+    if (newPassword.value !== confirmPassword.value) {
+      errMessage.value = "Die Passwörter stimmen nicht überein."
+      return
+    }
+    await updatePass(currentUser.value._id, { username: currentUser.value.username, password: newPassword.value })
+    successMessage.value = message.value
+  }
 }
 </script>
 
 <template>
-    <div class="game-settings">
-        <button 
-            @click="sendHello" 
-            :disabled="!isConnected"
-            class="wordle-button"
-            :class="{ 'button-disabled': !isConnected }"
-        >
-            <span class="button-text">Sende Hallo</span>
-            <span class="connection-indicator" :class="{ 'connected': isConnected }"></span>
-        </button>
-        <p v-if="error" class="error">{{ error }}</p>
-        <p v-if="isConnected" class="status connected">Verbunden</p>
-        <p v-else class="status disconnected">Nicht verbunden</p>
+  <div class="login-form-container">
+    <div class="login-form-card">
+      <h1 class="login-form-title">Einstellungen</h1>
+      <form @submit.prevent="handleUpdateUserData">
+        <div>
+          <label for="newName">Benutzername</label>
+          <input type="text" id="newName" v-model="newName" />
+        </div>
+        <div>
+          <label for="newPassword">Neues Passwort</label>
+          <input type="password" id="newPassword" v-model="newPassword" placeholder="Leer lassen, um nicht zu ändern" />
+        </div>
+        <div>
+          <label for="confirmPassword">Passwort bestätigen</label>
+          <input type="password" id="confirmPassword" v-model="confirmPassword" />
+        </div>
+        <p class="error-info">{{ errMessage }}</p>
+        <p class="success-info">{{ successMessage }}</p>
+        <button type="submit" class="submit-button">Speichern</button>
+      </form>
     </div>
+  </div>
 </template>
 
+<style scoped src="../styles/LoginForm.css"></style>
 <style scoped>
-.game-settings {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-.wordle-button {
-    position: relative;
-    background-color: #538d4e; 
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 12px 24px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.wordle-button:hover:not(.button-disabled) {
-    background-color: #447c41;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.wordle-button:active:not(.button-disabled) {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.button-disabled {
-    background-color: #787c7e;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.button-text {
-    flex-grow: 1;
-    text-align: center;
-}
-
-.connection-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #dc3545;
-    transition: background-color 0.3s ease;
-}
-
-.connection-indicator.connected {
-    background-color: #198754;
-}
-
-.error {
-    color: #dc3545;
-    font-size: 0.9rem;
-    background-color: rgba(220, 53, 69, 0.1);
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.status {
-    font-size: 0.9rem;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-weight: 500;
-}
-
-.status.connected {
-    color: #198754;
-    background-color: rgba(25, 135, 84, 0.1);
-}
-
-.status.disconnected {
-    color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.1);
+.success-info {
+  color: #27ae60;
+  font-size: 12px;
+  text-align: center;
 }
 </style>

@@ -21,6 +21,16 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface UpdateUsernameRequest {
+  username: string;
+  password: string;
+}
+
+export interface UpdatePasswordRequest {
+  username: string;
+  password: string;
+}
+
 export interface AuthResponse {
   success: boolean;
   error?: string;
@@ -62,6 +72,24 @@ export function registerUser(credentials: RegisterRequest): Promise<{ user: User
  **/
 export function getCurrentUser(): Promise<User> {
   return api.get<UserResponse>(`${API_URL}/profile`)
+    .then((response: AxiosResponse<UserResponse>) => response.data.data)
+}
+
+/**
+ * Update username
+ * UPDATE /api/account/username/{id}
+ */
+export function updateUsername(userId: string, data: UpdateUsernameRequest): Promise<User> {
+  return api.put<UserResponse>(`${API_URL}/account/username/${userId}`, data)
+    .then((response: AxiosResponse<UserResponse>) => response.data.data)
+}
+
+/**
+ * Update password
+ * UPDATE /api/account/password/{id}
+ */
+export function updatePassword(userId: string, data: UpdatePasswordRequest): Promise<User> {
+  return api.put<UserResponse>(`${API_URL}/account/password/${userId}`, data)
     .then((response: AxiosResponse<UserResponse>) => response.data.data)
 }
 
