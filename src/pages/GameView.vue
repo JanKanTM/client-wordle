@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import WordleGame from '../components/WordleGame.vue'
 import WordleChat from '../components/WordleChat.vue'
 import { useRound } from '../service/useRound'
-import { MessageCircle, MessageCircleOff } from 'lucide-vue-next';
+import { MessageCircle, MessageCircleOff, ArrowLeft } from 'lucide-vue-next';
 
 const router = useRouter()
 
@@ -12,6 +12,10 @@ const { startRoundListening, stopRoundListening, lastRoundMessage } = useRound()
 
 const isChatVisible = ref(true)
 const toggleChat = () => (isChatVisible.value = !isChatVisible.value)
+
+const goToHub = () => {
+  router.push('/hub')
+}
 
 onMounted(() => {
   /*
@@ -50,6 +54,10 @@ watch(lastRoundMessage, (msg) => {
 
 <template>
   <div class="game-view-container">
+    <button @click="goToHub" class="hub-button" title="Zurück zum Hub">
+      <ArrowLeft :size="16" />
+      <span>Zurück</span>
+    </button>
     <!-- Main Game Sidebar -->
     <main class="game-content">
       <WordleGame />
@@ -77,6 +85,30 @@ watch(lastRoundMessage, (msg) => {
   width: 100%;
   padding: 20px;
   position: relative;
+}
+
+.hub-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #3a3a3c;
+  transition: all 0.2s ease-in-out;
+  z-index: 20;
+}
+
+.hub-button:hover {
+  background-color: #6aaa64;
+  box-shadow: 0 0 12px rgba(106, 170, 100, 0.6);
+  transform: scale(1.025);
 }
 
 .game-content {

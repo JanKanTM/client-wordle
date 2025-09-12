@@ -65,6 +65,6 @@ onUnmounted(() => {
 .game-timer {
   font-size: 2rem;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
 }
 </style>

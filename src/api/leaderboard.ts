@@ -11,7 +11,7 @@ export interface UsersResponse {
   success: boolean
   error?: string
   errorCode?: number
-  data: User[]
+  top10: User[]
 }
 
 /**
@@ -20,5 +20,5 @@ export interface UsersResponse {
  **/
 export function getLeaderboard(): Promise<User[]> {
   return api.get<UsersResponse>(`${API_URL}/score/top10`)
-    .then((response: AxiosResponse<UsersResponse>) => response.data.data)
+    .then((response: AxiosResponse<UsersResponse>) => response.data.top10)
 }
