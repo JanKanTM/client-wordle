@@ -18,6 +18,7 @@ const isSubmitting = ref(false)
 const isBoardLocked = ref(true)
 const gameGrid = ref<GameCell[][]>([])
 const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({})
+const lastWord = ref<string | null>(null)
 
 interface GameCell {
   letter: string
@@ -226,6 +227,7 @@ watch(lastRoundMessage, (message) => {
 
   if (roundData.round === 'ended') {
     console.log('Round ended. Resetting and locking board.');
+    lastWord.value = roundData.word;
     resetGame()
     isBoardLocked.value = true
   } else if (roundData.round === 'started') {
@@ -270,8 +272,14 @@ watch(currentGuess, () => {
       </div>
     </div>
     <header class="game-header">
-      <div class="timer-wrapper">
+      <div class="header-info">
         <GameTimer />
+        <template v-if="lastWord">
+          <div class="separator"></div>
+          <div class="last-word-display">
+              Letztes Wort: <span>{{ lastWord }}</span>
+          </div>
+        </template>
       </div>
       <div class="connection-status">
         <span :class="{ 'connected': isConnected, 'disconnected': !isConnected }">
@@ -340,11 +348,34 @@ watch(currentGuess, () => {
   gap: 10px;
 }
 
+.header-info {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 8px 15px;
+    border-radius: 8px;
+    gap: 10px;
+}
+
+.separator {
+    width: 1px;
+    height: 24px;
+    background-color: #d1d5db;
+}
+
+.last-word-display {
+    font-size: 1rem;
+}
+
+.last-word-display span {
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 1.1rem;
+}
+
 .timer-wrapper {
-  background-color: #3a3a3c;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 8px;
+  /* This class is now unused for styling the box, but might be used by other things */
 }
 
 .game-header h1 {
@@ -527,6 +558,11 @@ watch(currentGuess, () => {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   text-align: center;
+}
+
+.last-word-modal {
+  margin-top: 15px;
+  font-size: 18px;
 }
 
 @media (max-width: 640px) {

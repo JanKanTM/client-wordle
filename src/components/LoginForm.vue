@@ -24,7 +24,7 @@ async function handleLogin() {
 
     if (isRegistering.value) {
       // Register
-      if (checkPassword()) {
+      if (checkUsername() && checkPassword()) {
 
         const credentials = {
           username: username.value,
@@ -64,6 +64,22 @@ async function handleLogin() {
     console.error("Fehler beim Login:", err);
     errMessage.value = 'Ein unerwarteter Fehler ist aufgetreten.';
   }
+}
+
+function checkUsername(): boolean {
+  const usernameRegex = /^[a-zA-Z0-9]+$/;
+  if (!usernameRegex.test(username.value)) {
+    errMessage.value = "Der Benutzername darf nur Buchstaben und Zahlen ohne Leerzeichen enthalten.";
+    return false;
+  }
+
+  const letterCount = (username.value.match(/[a-zA-Z]/g) || []).length;
+  if (letterCount < 2) {
+    errMessage.value = "Der Benutzername muss mindestens 2 Buchstaben enthalten.";
+    return false;
+  }
+
+  return true;
 }
 
 function checkPassword(): boolean {

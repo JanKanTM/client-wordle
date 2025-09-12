@@ -59,7 +59,7 @@ onUnmounted(() => {
 <template>
   <div class="game-timer">
     <Timer 
-    :size="24" 
+    :size="22" 
     />
     <span>{{ timeLeft }}</span>
   </div>
@@ -67,9 +67,9 @@ onUnmounted(() => {
 
 <style scoped>
 .game-timer {
-  font-size: 1.6rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: #ffffff;
+  color: inherit;
   display: flex;
   align-items: center;
   gap: 0.5rem;
