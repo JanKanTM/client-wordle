@@ -2,9 +2,11 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGuess, type GuessResponse, type GuessResult } from '../service/useGuess'
 import { useWebSocket } from '../service/useWebSocket'
+import { useRound, type RoundResponse } from '../service/useRound'
 
 const { lastResponse, startGuessListening, stopGuessListening, submitGuess } = useGuess()
 const { isConnected } = useWebSocket()
+const { lastRoundMessage, startRoundListening, stopRoundListening } = useRound()
 
 // Game State
 const maxAttempts = ref(6)
@@ -12,6 +14,7 @@ const currentAttempt = ref(0)
 const currentGuess = ref('')
 const gameWon = ref(false)
 const isSubmitting = ref(false)
+const isBoardLocked = ref(false)
 const gameGrid = ref<GameCell[][]>([])
 const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({})
 
@@ -40,6 +43,17 @@ const initializeGrid = () => {
   gameGrid.value = Array.from({ length: maxAttempts.value }, () => 
     Array.from({ length: 5 }, () => ({ letter: '', status: 'empty' as const }))
   )
+}
+
+// Reset Game State
+const resetGame = () => {
+  console.log('Resetting game board...')
+  initializeGrid()
+  currentAttempt.value = 0
+  currentGuess.value = ''
+  gameWon.value = false
+  letterStates.value = {}
+  isSubmitting.value = false
 }
 
 // Handle Key Press from virtual or physical keyboard
@@ -140,6 +154,9 @@ const getDynamicKeyClass = (key: string) => {
 }
 
 const isKeyDisabled = (key: string) => {
+  if (isBoardLocked.value) {
+    return true
+  }
   if (isSubmitting.value) {
     return true
   }
@@ -171,14 +188,44 @@ const handleKeyDown = (event: KeyboardEvent) => {
   }
 }
 
+watch(lastRoundMessage, (message) => {
+  console.log('Received round message:', message);
+  let roundData: RoundResponse | null = null;
+
+  if (message && typeof (message as any).body === 'string') {
+    try {
+      roundData = JSON.parse((message as any).body);
+    } catch (e) {
+      console.error("Failed to parse round message body:", e);
+      return;
+    }
+  } else {
+    roundData = message as RoundResponse | null;
+  }
+
+  if (!roundData) return;
+
+  if (roundData.round === 'ended') {
+    console.log('Round ended. Resetting and locking board.');
+    resetGame()
+    isBoardLocked.value = true
+  } else if (roundData.round === 'started') {
+    console.log('Round started. Unlocking board.');
+    isBoardLocked.value = false
+    resetGame();
+  }
+}, { immediate: true });
+
 onMounted(() => {
   initializeGrid()
   startGuessListening()
+  startRoundListening()
   window.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   stopGuessListening()
+  stopRoundListening()
   window.removeEventListener('keydown', handleKeyDown)
 })
 
@@ -188,6 +235,7 @@ watch(lastResponse, (newResponse) => {
     processGuessResponse(newResponse)
   }
 })
+
 
 // Watch current guess for live update
 watch(currentGuess, () => {

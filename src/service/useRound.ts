@@ -15,10 +15,11 @@ export interface RoundEnded {
 
 export type RoundResponse = RoundStarted | RoundEnded;
 
+const lastRoundMessage = ref<RoundResponse | null>(null)
+
 export function useRound() {
     const { subscribe, unsubscribe, isConnected } = useWebSocket()
 
-    const lastRoundMessage = ref<RoundResponse | null>(null)
     let stopWatch: WatchStopHandle | null = null
 
     const startRoundListening = () => {
