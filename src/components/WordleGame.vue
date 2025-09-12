@@ -14,7 +14,7 @@ const currentAttempt = ref(0)
 const currentGuess = ref('')
 const gameWon = ref(false)
 const isSubmitting = ref(false)
-const isBoardLocked = ref(false)
+const isBoardLocked = ref(true)
 const gameGrid = ref<GameCell[][]>([])
 const letterStates = ref<{ [key: string]: 'correct' | 'present' | 'absent' }>({})
 
@@ -58,6 +58,7 @@ const resetGame = () => {
 
 // Handle Key Press from virtual or physical keyboard
 const handleKeyPress = (key: string) => {
+  if (isBoardLocked.value) return
   if (gameWon.value || currentAttempt.value >= maxAttempts.value || isSubmitting.value) return
 
   if (key === 'ENTER') {
@@ -274,7 +275,7 @@ watch(currentGuess, () => {
 
       <!-- Spielstatus -->
       <div class="game-status">
-        <p>Versuch: {{ currentAttempt }} / {{ maxAttempts }}</p>
+        <p>Versuche: {{ currentAttempt }} / {{ maxAttempts }}</p>
         <p v-if="gameWon" class="win-message">Gewonnen! Das Wort war richtig!</p>
         <p v-else-if="currentAttempt >= maxAttempts" class="lose-message">Verloren! Keine Versuche mehr übrig.</p>
       </div>
