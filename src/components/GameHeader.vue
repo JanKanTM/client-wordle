@@ -35,11 +35,13 @@ function routeSettings() {
             class="base-icon"
             @click="routeScoreboard"
           />
+          <!--
           <SettingsIcon 
             :size="28"
             class="base-icon"
             @click="routeSettings"
           />
+          -->
           <button @click="handleLogout" class="logout-button"> <LogOut :size="16" /> Logout</button>
         </div>
       </template>
